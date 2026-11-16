@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Simulacro de admisión UCR, UNA y TEC</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..125,400..800&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+/* Idea de diseño: la hoja para respuestas. Papel, grafito y tinta azul de la firma;
+   verde y rojo quedan reservados para el cronómetro y la corrección. Una columna de lectura + la hoja de burbujas. */
+:root{
+  --paper:#eef0f4; --surface:#ffffff; --surface-2:#f5f6f9; --ink:#171b26; --muted:#5a6275; --line:#d5d9e3;
+  --blue:#2242b8; --blue-soft:#e3e8fb; --ok:#16794a; --ok-soft:#dff3e8; --over:#c0302b; --over-soft:#fbe4e2;
+  --f-display:"Archivo","Arial Narrow",Arial,sans-serif; --f-body:"Atkinson Hyperlegible",Verdana,"Segoe UI",sans-serif;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#0f1219; --surface:#181c27; --surface-2:#1f2431; --ink:#e9ebf2; --muted:#9ba3b7; --line:#2d3446;
+    --blue:#93a9ff; --blue-soft:#232c4d; --ok:#56d08d; --ok-soft:#16382a; --over:#ff7a72; --over-soft:#44201e;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0f1219; --surface:#181c27; --surface-2:#1f2431; --ink:#e9ebf2; --muted:#9ba3b7; --line:#2d3446;
+  --blue:#93a9ff; --blue-soft:#232c4d; --ok:#56d08d; --ok-soft:#16382a; --over:#ff7a72; --over-soft:#44201e;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:17px;line-height:1.55;-webkit-text-size-adjust:100%}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;line-height:1.1}
+.wrap{max-width:1120px;margin:0 auto;padding:20px 16px 56px}
+.num{font-family:var(--f-display);font-variant-numeric:tabular-nums}
+.muted{color:var(--muted)}
+.eyebrow{font-family:var(--f-display);font-size:.78rem;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+
+/* ---------- inicio ---------- */
+.mast{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px 24px;padding:8px 0 20px;border-bottom:2px solid var(--ink)}
+.mast h1{font-size:clamp(2rem,6vw,3.3rem);font-weight:800;font-stretch:80%;letter-spacing:-.01em}
+.mast p{margin:0;max-width:34ch;color:var(--muted);font-size:.98rem}
+.home{display:grid;gap:28px;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);margin-top:24px}
+@media (max-width:820px){.home{grid-template-columns:1fr}}
+.step{display:grid;gap:10px;margin-bottom:26px}
+.step h2{font-size:1.12rem;font-weight:700}
+.step h2 b{display:inline-grid;place-items:center;width:1.6em;height:1.6em;border:2px solid var(--ink);border-radius:50%;margin-right:.45em;font-size:.82em}
+.unis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+@media (max-width:520px){.unis{grid-template-columns:1fr}}
+.pick{display:grid;gap:2px;text-align:left;padding:12px 14px;background:var(--surface);border:2px solid var(--line);border-radius:var(--r)}
+.pick strong{font-family:var(--f-display);font-size:1.5rem;font-weight:800;font-stretch:85%}
+.pick span{font-size:.86rem;color:var(--muted);line-height:1.35}
+.pick[aria-pressed="true"]{border-color:var(--blue);background:var(--blue-soft)}
+.pick[aria-pressed="true"] strong{color:var(--blue)}
+.modes{display:grid;gap:10px;grid-template-columns:repeat(2,minmax(0,1fr))}
+@media (max-width:520px){.modes{grid-template-columns:1fr}}
+.pick em{font-style:normal;font-weight:700;font-size:1.02rem}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{padding:6px 14px;border-radius:999px;border:1.5px solid var(--line);background:var(--surface);font-size:.92rem}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.go{display:inline-flex;align-items:center;gap:.5em;padding:14px 26px;border:0;border-radius:var(--r);background:var(--blue);color:var(--surface);font-family:var(--f-display);font-weight:700;font-size:1.1rem}
+.go:hover{filter:brightness(1.08)}
+.ghost{padding:10px 18px;border:1.5px solid var(--line);border-radius:var(--r);background:var(--surface);font-weight:700}
+.ghost:hover{border-color:var(--ink)}
+.ghost[disabled]{opacity:.45;cursor:default}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px 18px}
+.panel h3{font-size:1rem;font-weight:700;margin-bottom:10px}
+.panel + .panel{margin-top:14px}
+.clock-demo{display:grid;gap:10px}
+.clock-demo div{display:flex;gap:12px;align-items:center;font-size:.93rem;line-height:1.35}
+.hist{list-style:none;margin:0;padding:0;display:grid;gap:6px;font-size:.92rem}
+.hist li{display:flex;justify-content:space-between;gap:10px;padding:6px 0;border-bottom:1px dashed var(--line)}
+.hist li:last-child{border:0}
+.foot{margin-top:36px;padding-top:14px;border-top:1px solid var(--line);font-size:.8rem;color:var(--muted);max-width:80ch}
+
+/* ---------- cronómetro ---------- */
+.timer{display:inline-flex;align-items:center;gap:.5em;padding:4px 14px 4px 10px;border-radius:999px;font-family:var(--f-display);font-weight:700;font-variant-numeric:tabular-nums;font-size:1.25rem;background:var(--ok-soft);color:var(--ok);border:2px solid var(--ok);white-space:nowrap}
+.timer::before{content:"";width:.6em;height:.6em;border-radius:50%;background:currentColor}
+.timer.over{background:var(--over-soft);color:var(--over);border-color:var(--over)}
+.timer.sm{font-size:.9rem;padding:1px 10px 1px 8px;border-width:1.5px}
+.timer.off{background:var(--surface-2);color:var(--muted);border-color:var(--line)}
+
+/* ---------- examen ---------- */
+.bar{position:sticky;top:0;z-index:5;background:var(--paper);padding:10px 0;border-bottom:2px solid var(--ink);display:flex;flex-wrap:wrap;align-items:center;gap:8px 18px}
+.bar .where{flex:1 1 auto;min-width:0}
+.bar .where strong{font-family:var(--f-display);font-size:1.25rem;font-weight:800}
+.bar .tot{font-size:.86rem;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+.bar .tot.over{color:var(--over);font-weight:700}
+.fill{flex:1 0 100%;height:5px;background:var(--line);border-radius:3px;overflow:hidden}
+.fill i{display:block;height:100%;width:0;background:var(--ok)}
+.fill.over i{background:var(--over)}
+.exam{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:26px;margin-top:20px;align-items:start}
+@media (max-width:900px){.exam{grid-template-columns:1fr}}
+.hint{margin:0 0 12px;padding:8px 12px;border-radius:8px;background:var(--over-soft);color:var(--over);font-weight:700;font-size:.93rem}
+.q{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:22px clamp(16px,3vw,28px)}
+.stem{font-size:1.08rem;max-width:68ch}
+.stem blockquote{margin:12px 0;padding:12px 16px;background:var(--surface-2);border-left:4px solid var(--blue);border-radius:0 8px 8px 0}
+.stem cite{display:block;text-align:right;font-style:normal;font-size:.85rem;color:var(--muted);margin-top:6px}
+.stem .duo{display:grid;gap:12px;grid-template-columns:repeat(2,minmax(0,1fr))}
+.stem .duo blockquote{margin:0}
+@media (max-width:640px){.stem .duo{grid-template-columns:1fr}}
+.duo{margin:12px 0}
+.gap{display:inline-block;width:4.5em;border-bottom:2px solid var(--ink);margin:0 .2em;vertical-align:baseline}
+.mth{font-family:var(--f-display);font-size:1.12rem;margin:10px 0;padding-left:8px;font-variant-numeric:tabular-nums}
+.fr{display:inline-flex;flex-direction:column;text-align:center;vertical-align:middle;font-family:var(--f-display);line-height:1.25}
+.fr i{font-style:normal;padding:0 .35em}
+.fr i:first-child{border-bottom:1.5px solid currentColor}
+.tri{font-family:var(--f-display);text-align:center;font-size:1.1rem;line-height:1.7;margin:10px 0;font-variant-numeric:tabular-nums}
+.tb{border-collapse:collapse;margin:12px 0;font-size:.97rem}
+.tb th,.tb td{border:1px solid var(--line);padding:5px 14px;text-align:left}
+.tb td:last-child,.tb th:last-child{text-align:right;font-variant-numeric:tabular-nums}
+.tb th{background:var(--surface-2)}
+.opts{display:grid;gap:10px;margin-top:20px}
+.opt{display:flex;align-items:center;gap:14px;text-align:left;padding:12px 14px;background:var(--surface);border:2px solid var(--line);border-radius:var(--r);min-height:56px}
+.opt:hover:not([disabled]){border-color:var(--ink)}
+.opt[disabled]{cursor:default}
+.bub{flex:none;display:grid;place-items:center;width:34px;height:34px;border:2px solid var(--ink);border-radius:50%;font-family:var(--f-display);font-weight:700}
+.opt.sel{border-color:var(--ink);background:var(--surface-2)}
+.opt.sel .bub{background:var(--ink);color:var(--surface)}
+.opt.right{border-color:var(--ok);background:var(--ok-soft)}
+.opt.right .bub{background:var(--ok);border-color:var(--ok);color:var(--surface)}
+.opt.wrong{border-color:var(--over);background:var(--over-soft)}
+.opt.wrong .bub{background:var(--over);border-color:var(--over);color:var(--surface)}
+.why{margin-top:16px;padding:12px 16px;border-radius:8px;background:var(--surface-2);border-left:4px solid var(--ok);font-size:.98rem}
+.why.bad{border-left-color:var(--over)}
+.src{margin-top:10px;font-size:.78rem;color:var(--muted)}
+.nav{display:flex;justify-content:space-between;gap:10px;margin-top:18px;flex-wrap:wrap}
+.nav .go{padding:12px 24px}
+
+/* hoja para respuestas */
+.sheet{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px;position:sticky;top:86px}
+@media (max-width:900px){.sheet{position:static}}
+.sheet summary{font-family:var(--f-display);font-weight:700;cursor:pointer;list-style:none;display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+.sheet summary::-webkit-details-marker{display:none}
+.sheet summary span{font-family:var(--f-body);font-weight:400;font-size:.82rem;color:var(--muted)}
+.rows{display:grid;grid-auto-flow:column;grid-template-rows:repeat(15,auto);gap:2px 8px;margin-top:12px}
+.rows.short{grid-template-rows:repeat(8,auto)}
+.row{display:flex;align-items:center;gap:3px;padding:2px 3px;border:0;background:none;border-radius:5px;font-size:.74rem}
+.row:hover{background:var(--surface-2)}
+.row b{width:1.6em;text-align:right;margin-right:2px;font-family:var(--f-display);font-variant-numeric:tabular-nums;font-weight:700}
+.row i{width:13px;height:13px;border:1.5px solid var(--muted);border-radius:50%;flex:none}
+.row i.on{background:var(--ink);border-color:var(--ink)}
+.row.cur{background:var(--blue-soft);box-shadow:inset 0 0 0 1.5px var(--blue)}
+.row.late b{color:var(--over)}
+.sheet .end{width:100%;margin-top:14px}
+.key{margin:10px 0 0;font-size:.76rem;color:var(--muted);line-height:1.4}
+
+/* diálogo */
+.veil{position:fixed;inset:0;background:rgba(10,12,20,.55);display:grid;place-items:center;padding:16px;z-index:20}
+.dlg{background:var(--surface);border-radius:14px;padding:22px;max-width:420px;width:100%;display:grid;gap:14px}
+.dlg h3{font-size:1.25rem}
+.dlg p{margin:0}
+.dlg div{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap}
+
+/* ---------- resultados ---------- */
+.score{display:grid;grid-template-columns:auto minmax(0,1fr);gap:18px 32px;align-items:center;padding:22px 0;border-bottom:2px solid var(--ink)}
+@media (max-width:640px){.score{grid-template-columns:1fr}}
+.big{font-family:var(--f-display);font-weight:800;font-stretch:80%;font-size:clamp(3.4rem,13vw,6rem);line-height:.95;font-variant-numeric:tabular-nums}
+.big small{font-size:.38em;color:var(--muted);font-weight:600}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.fact{border-left:3px solid var(--line);padding-left:12px}
+.fact b{display:block;font-family:var(--f-display);font-size:1.4rem;font-variant-numeric:tabular-nums}
+.fact span{font-size:.85rem;color:var(--muted)}
+.areas{display:grid;gap:12px;margin:22px 0}
+.area{display:grid;grid-template-columns:110px minmax(0,1fr) auto;gap:12px;align-items:center;font-size:.95rem}
+@media (max-width:520px){.area{grid-template-columns:1fr auto}.area .track{grid-column:1/-1;order:3}}
+.track{height:12px;background:var(--line);border-radius:6px;overflow:hidden}
+.track i{display:block;height:100%;background:var(--blue)}
+.tools{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:22px 0 12px}
+.tools h2{font-size:1.25rem;margin-right:auto}
+.rev{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);margin-bottom:8px}
+.rev summary{display:grid;grid-template-columns:2.2em 5.6em minmax(0,1fr) auto;gap:10px;align-items:center;padding:10px 14px;cursor:pointer;list-style:none;font-size:.94rem}
+.rev summary::-webkit-details-marker{display:none}
+@media (max-width:560px){.rev summary{grid-template-columns:2.2em minmax(0,1fr) auto}.rev summary .ar{display:none}}
+.rev summary b{font-family:var(--f-display);font-variant-numeric:tabular-nums}
+.tag{display:inline-block;padding:1px 9px;border-radius:999px;font-size:.8rem;font-weight:700}
+.tag.ok{background:var(--ok-soft);color:var(--ok)}
+.tag.no{background:var(--over-soft);color:var(--over)}
+.tag.nil{background:var(--surface-2);color:var(--muted)}
+.rev .body{padding:4px 18px 18px;border-top:1px solid var(--line)}
+.rev .opts{margin-top:14px}
+.rev .opt{min-height:0;padding:8px 12px}
+.rev .bub{width:28px;height:28px;font-size:.9rem}
+.empty{padding:18px;text-align:center;color:var(--muted)}
+.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:24px}
+.userbar{display:flex;justify-content:flex-end;gap:6px 14px;align-items:center;font-size:.88rem;color:var(--muted);padding-bottom:8px;flex-wrap:wrap}
+.userbar span{overflow-wrap:anywhere}
+.link{background:none;border:0;padding:0;color:var(--blue);font-weight:700;text-decoration:underline}
+.login{max-width:460px;margin:28px auto 0;display:grid;gap:16px}
+.field{display:grid;gap:5px;font-weight:700;font-size:.95rem}
+.field input{font:inherit;font-weight:400;padding:12px 14px;border:2px solid var(--line);border-radius:var(--r);background:var(--surface);color:var(--ink);width:100%}
+.field small{font-weight:400;color:var(--muted)}
+.err{color:var(--over);font-weight:700;font-size:.9rem;margin:0}
+.status{padding:10px 14px;border-radius:8px;background:var(--surface-2);border-left:4px solid var(--blue);font-size:.92rem;margin:16px 0;display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center}
+.status.warn{border-left-color:var(--over)}
+.status input{font:inherit;padding:6px 10px;border:1.5px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);min-width:0;flex:1 1 160px}
+.people{display:grid;gap:8px}
+.prow{display:grid;grid-template-columns:minmax(0,2.2fr) repeat(4,minmax(64px,1fr));gap:10px;align-items:center;text-align:left;padding:12px 14px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);font-size:.93rem;width:100%}
+button.prow:hover{border-color:var(--ink)}
+.prow.head{background:none;border:0;padding:0 14px;font-size:.76rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em}
+.prow strong{display:block;overflow-wrap:anywhere}
+.prow small{color:var(--muted);overflow-wrap:anywhere}
+.prow span b{display:none;font-weight:400;color:var(--muted)}
+@media (max-width:640px){.prow{grid-template-columns:1fr 1fr}.prow>:first-child{grid-column:1/-1}.prow.head{display:none}.prow span b{display:inline}}
+.spark{width:100%;max-width:560px;height:auto;display:block}
+.miss{margin:0;padding:0;list-style:none;display:grid;gap:8px;font-size:.9rem}
+.miss li{padding-bottom:8px;border-bottom:1px dashed var(--line)}
+.miss li:last-child{border:0}
+.rows{overflow-x:auto}
+@media (prefers-reduced-motion:no-preference){.fill i{transition:width .25s linear}.opt,.pick,.chip{transition:border-color .12s,background .12s}}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<script>
+/* ================= CONFIGURACIÓN =================
+   admin: correo que abre el panel de administrador.
+   sync:  dirección del registro central (Google Apps Script). Vacío = los intentos
+          solo se guardan en el dispositivo donde se hicieron. */
+var CONFIG = {
+  admin: "rblancod11@gmail.com",
+  sync: ""
+};
+</script>
+<script>
+// Ítems del Cuaderno de ejercicios para la PAA del TEC (2.ª ed., 2023), CC BY-NC-SA 4.0.
+// u: T = TEC, P = PAA UCR/UNA, X = ambos. a: L lectura, G lógica, M matemática.
+const B = [];
+const add = (u, a, q, o, k, e, s) => B.push({ id: B.length + 1, u, a, q, o, k, e, s: s || '' });
+const bq = (t, c) => `<blockquote>${t}${c ? `<cite>${c}</cite>` : ''}</blockquote>`;
+const gap = '<span class="gap"></span>';
+const fr = (n, d) => `<span class="fr"><i>${n}</i><i>${d}</i></span>`;
+const TEC = 'tec';
+
+/* ---------- TEC · lógica ---------- */
+add('T','G',`Si mi prima es hija de la hermana de mi madre, ¿qué relación tiene conmigo la abuelita materna de la hija de mi prima?`,
+['Tía','Prima','Madre','Abuela'],0,`La abuela materna de la hija de mi prima es la madre de mi prima, es decir, la hermana de mi madre: mi tía.`,TEC);
+add('T','G',`Considere la siguiente secuencia:<p class="mth">${fr('1','n<sup>2</sup> + 1')} , ${fr('3','n<sup>4</sup> + 2')} , ${fr('5','n<sup>6</sup> + 3')} , …</p>¿Cuál es la expresión que continúa la secuencia?`,
+[fr('7','n<sup>8</sup> + 3'),fr('6','n<sup>8</sup> + 3'),fr('7','n<sup>8</sup> + 4'),fr('7','n<sup>8</sup> + 5')],2,`El numerador sube de 2 en 2 (1, 3, 5, 7), el exponente de n sube de 2 en 2 (2, 4, 6, 8) y el sumando sube de 1 en 1 (1, 2, 3, 4).`,TEC);
+add('T','G',`Considere las siguientes premisas:<br>Premisa 1: Todos los ciervos tienen cuernos.<br>Premisa 2: Algunos rumiantes son ciervos.<br>De las premisas anteriores se sigue que`,
+['algunos ciervos no son rumiantes.','algunos rumiantes tienen cuernos.','todos los rumiantes tienen cuernos.','algunos rumiantes no tienen cuernos.'],1,`Los rumiantes que son ciervos tienen cuernos; sobre los demás rumiantes no se sabe nada.`,TEC);
+add('T','G',`Considere la siguiente secuencia, donde n es un número entero positivo:<p class="mth">3n − 1, 3n + 2, 3n + x, 3n + 8, …</p>¿Cuál es el valor de x?`,
+['3','4','5','6'],2,`Sin el 3n queda −1, 2, x, 8: cada término suma 3, así que x = 5.`,TEC);
+add('T','G',`Considere las siguientes premisas:<br>Premisa 1: Si V lee, entonces L dibuja o J salta.<br>Premisa 2: Si L dibuja, entonces P no corre.<br>Premisa 3: L no dibuja y J no salta.<br>De las premisas anteriores se sigue que`,
+['V lee.','P corre.','V no lee.','P no corre.'],2,`Como L no dibuja y J no salta, la premisa 1 obliga a que V no lea. Sobre P no se puede concluir nada.`,TEC);
+add('T','G',`Se tienen tres lapiceros X, Y y Z: dos son verdes y uno es rojo; además, X y Y son de diferente color.<br>Considere las siguientes proposiciones:<br>A. Y es verde.<br>B. Z es verde.<br>C. X es verde.<br>De las anteriores, ¿cuáles se cumplen con certeza?`,
+['Solo B','Solo C','B y C','A y B'],0,`Si X y Y son de distinto color, uno es rojo y el otro verde; el segundo verde tiene que ser Z.`,TEC);
+add('T','G',`Considere las siguientes premisas:<br>Premisa 1: Toda conferencia es discurso.<br>Premisa 2: Algunas conferencias no son lecciones.<br>De las premisas anteriores se sigue que`,
+['ninguna lección es discurso.','todas las lecciones son discursos.','algunos discursos no son lecciones.','todos los discursos son conferencias.'],2,`Las conferencias que no son lecciones son discursos; por tanto, hay discursos que no son lecciones.`,TEC);
+add('T','G',`Analice el siguiente patrón:<div class="tri">1<br>1 &nbsp; 2<br>1 &nbsp; 3 &nbsp; 2<br>1 &nbsp; 4 &nbsp; 5 &nbsp; 2<br>1 &nbsp; 5 &nbsp; 9 &nbsp; 7 &nbsp; 2</div>Si se continúa con el mismo patrón, ¿en cuál fila la suma de sus números sobrepasa por primera vez 96?`,
+['Sétima','Octava','Novena','Décima'],1,`Las sumas por fila se duplican: 1, 3, 6, 12, 24, 48, 96, 192. La sétima suma exactamente 96; la octava es la primera que lo sobrepasa.`,TEC);
+add('T','G',`Considere la siguiente secuencia:<p class="mth">−1, 1, 0, 1, 1, 2, 3, 5, p</p>¿Cuál es el valor de p?`,
+['5','6','7','8'],3,`Cada término es la suma de los dos anteriores: p = 3 + 5 = 8.`,TEC);
+add('T','G',`Considere las siguientes premisas:<br>Premisa 1: Si A es un muchacho, entonces A es más joven que J.<br>Premisa 2: Si A no tiene 14 años, entonces A no es más joven que J.<br>Premisa 3: A no tiene 14 años.<br>De las premisas anteriores se sigue que`,
+['A es menor que J.','J es menor que A.','J es un muchacho.','A no es un muchacho.'],3,`De 3 y 2: A no es más joven que J. Si A fuera un muchacho, sería más joven que J (premisa 1); entonces A no es un muchacho.`,TEC);
+add('T','G',`Considere la siguiente secuencia:<p class="mth">1, 5, 14, 30, 55, …</p>¿Cuál es el sétimo término de esta secuencia?`,
+['79','91','104','140'],3,`Se suman cuadrados consecutivos: +4, +9, +16, +25, +36, +49. Sexto término: 91; sétimo: 91 + 49 = 140.`,TEC);
+add('T','G',`Considere las siguientes premisas:<br>Premisa 1: Todo C es S.<br>Premisa 2: Ningún E es T.<br>Premisa 3: Todo S es T.<br>De las anteriores se sigue que`,
+['todo S es E.','todo C no es E.','algunos S son E.','algunos T son E.'],1,`Todo C es S y todo S es T, así que todo C es T. Como ningún E es T, ningún C es E.`,TEC);
+add('T','G',`Considere las siguientes premisas:<br>Premisa 1: Todos los músicos coleccionan carteles.<br>Premisa 2: P no es músico y Q no colecciona carteles.<br>Considere las siguientes afirmaciones:<br>A. P no colecciona carteles.<br>B. Q no es músico.<br>C. P colecciona carteles.<br>De las anteriores, ¿cuáles se cumplen con certeza?`,
+['Solo A','Solo B','A y B','B y C'],1,`Q no colecciona carteles, así que no puede ser músico. De P no se sabe: alguien que no es músico puede o no coleccionar carteles.`,TEC);
+add('T','G',`Considere la siguiente secuencia de pares ordenados:<p class="mth">(1, 2), (3, 8), (7, 26), (b, 80), (31, a), (63, 728), …</p>¿Cuál es el valor de a + b?`,
+['255','256','257','258'],2,`Primeros elementos: 2<sup>n</sup> − 1, entonces b = 15. Segundos: 3<sup>n</sup> − 1, entonces a = 242. Suma: 257.`,TEC);
+
+/* ---------- TEC · matemática ---------- */
+add('T','M',`¿Cuál es el último dígito del número 2545 · 5<sup>117</sup> + 1?`,
+['0','1','5','6'],3,`Toda potencia de 5 termina en 5; 2545 · (…5) también termina en 5. Al sumar 1, termina en 6.`,TEC);
+add('T','M',`Considere las siguientes equivalencias:<br>10 tazas de agua = 2000 ml<br>16 cucharadas de agua = 200 ml<br>¿Cuántas tazas se obtienen de 240 cucharadas de agua?`,
+['15','24','30','48'],0,`Una taza son 200 ml, es decir, 16 cucharadas. 240 ÷ 16 = 15 tazas.`,TEC);
+add('T','M',`Si k es un número natural, ¿cuáles expresiones representan dos números naturales impares consecutivos?`,
+['2k − 1 y 2k','2k − 1 y 2k + 3','2k + 1 y 2k + 3','2k + 1 y 2k + 2'],2,`2k es par; 2k + 1 y 2k + 3 son impares y difieren en 2, así que son impares consecutivos.`,TEC);
+add('T','M',`En el conjunto de los números reales se define la operación ⊙, que cumple las siguientes condiciones:<p class="mth">m ⊙ −1 = m &nbsp;&nbsp;&nbsp; 2 ⊙ −2 = 1</p>De acuerdo con lo anterior, ¿cuál es una posible fórmula para definir la operación ⊙?`,
+['a ⊙ b = 2a + ab','a ⊙ b = a + b + 1','a ⊙ b = a − b − 3','a ⊙ b = a + 2b + 2'],1,`Con a + b + 1: m + (−1) + 1 = m y 2 + (−2) + 1 = 1. Las otras fórmulas fallan en alguna de las dos condiciones.`,TEC);
+add('T','M',`Se requiere que n<sup>p</sup> siempre sea un número impar, con n y p naturales distintos de cero.<br>Considere las siguientes afirmaciones:<br>A. n tiene que ser un número par siempre que p sea impar.<br>B. n puede ser cualquier número natural siempre que p sea impar.<br>C. p tiene que ser un número impar y n debe ser un número impar.<br>D. p puede ser cualquier número natural siempre que n sea impar.<br>De las anteriores, ¿cuáles son verdaderas?`,
+['Solo B','Solo C','C y D','A y B'],2,`Una potencia es impar justo cuando la base es impar, sin importar el exponente. Con base par el resultado siempre es par.`,TEC);
+add('T','M',`¿Cuántos productos distintos se pueden obtener al multiplicar dos de los siguientes números: 3, 5, 6, 7 y 9 sin repetirlos?`,
+['9','10','20','25'],1,`Hay 10 parejas posibles (5 · 4 ÷ 2) y los 10 productos son distintos.`,TEC);
+add('T','M',`Después de hacer una encuesta en la población A, conformada por 425 mujeres y 325 hombres, se obtiene la siguiente información:<table class="tb"><tr><th>Tipo de población</th><th>Total</th></tr><tr><td>Niños en escuela</td><td>225</td></tr><tr><td>Jóvenes en el colegio</td><td>175</td></tr><tr><td>Adultos menores de 65 años</td><td>250</td></tr><tr><td>Adultos mayores de 65 años</td><td>100</td></tr></table>Considere las siguientes afirmaciones:<br>A. De cada 75 adultos mayores, 13 son mujeres.<br>B. Por cada 7 colegiales hay 9 escolares.<br>C. De cada 30 escolares, 13 son hombres.<br>De las afirmaciones anteriores, ¿cuáles se cumplen con certeza?`,
+['Solo B','Solo C','A y B','B y C'],0,`175 ÷ 225 = 7 ÷ 9, así que B es cierta. A y C suponen que la proporción de hombres y mujeres es igual en cada subgrupo, y eso no se sabe.`,TEC);
+add('T','M',`Una empresa dispone de tres contenedores con capacidad para 90 kg, 180 kg y 150 kg, respectivamente. En cada uno se colocan frijoles empacados en sacos con el mayor peso posible y con igual peso en los tres contenedores. ¿Cuántos kilogramos debe pesar cada saco de frijoles?`,
+['15','30','45','90'],1,`Se busca el máximo común divisor de 90, 150 y 180, que es 30.`,TEC);
+add('T','M',`Se sabe que el producto de dos números naturales A y B es S. ¿Cuál expresión representa A aumentado en 2 unidades multiplicado por B?`,
+['S + 2','S + B','S + 2A','S + 2B'],3,`(A + 2) · B = A · B + 2B = S + 2B.`,TEC);
+add('T','M',`Una fábrica de una zona industrial tiene tres timbres para la realización de diferentes procesos. Uno suena cada hora y cuarto, el segundo cada hora y veinte, el tercero cada hora y media. Si los tres suenan simultáneamente a las 10 de la mañana del domingo, ¿cuándo es la próxima vez que volverá a suceder?`,
+['A las 10 de la noche del lunes','A las 10 de la noche del martes','A las 10 de la mañana del jueves','A las 10 de la mañana del miércoles'],1,`El mínimo común múltiplo de 75, 80 y 90 minutos es 3600 minutos = 60 horas. Domingo 10 a. m. + 60 h = martes 10 p. m.`,TEC);
+add('T','M',`¿Cuántos diferentes ordenamientos de cuatro letras se pueden hacer con M, S, R, A, O de modo que cada uno comience en S y termine en A?`,
+['9','10','20','25'],3,`El enunciado no prohíbe repetir letras: hay 5 opciones para la segunda posición y 5 para la tercera, 5 · 5 = 25.`,TEC);
+add('T','M',`¿Cuántos números de cuatro cifras se pueden formar de manera que el dígito de las unidades sea 0 y los otros sean tres dígitos del 1 al 7, distintos entre sí?`,
+['18','120','210','216'],2,`7 opciones para la primera cifra, 6 para la segunda y 5 para la tercera: 7 · 6 · 5 = 210.`,TEC);
+add('T','M',`¿Cuántos números de tres cifras se pueden formar utilizando solamente el 1 y el 7?`,
+['5','6','7','8'],3,`Cada una de las tres posiciones tiene 2 opciones: 2 · 2 · 2 = 8.`,TEC);
+add('T','M',`Si hace 5 años la persona P tenía el cuádruplo de la edad de la persona Z y dentro de 5 años tendrá el doble de la edad de Z, ¿cuántos años tiene P?`,
+['15','20','25','30'],2,`x − 5 = 4(y − 5) y x + 5 = 2(y + 5). De ahí y = 10 y x = 25.`,TEC);
+add('T','M',`Para empacar cinco bolas se utilizan cilindros de 3 cm de radio y 30 cm de altura. Se puede afirmar con certeza que cada empaque contiene bolas que`,
+['exceden los 3 cm de radio.','exceden los 6 cm de diámetro.','no exceden los 3 cm de radio.','no exceden los 3 cm de diámetro.'],2,`Para caber en el cilindro, ninguna bola puede tener más de 3 cm de radio. Podrían ser más pequeñas, pero no se sabe cuánto.`,TEC);
+
+/* ---------- TEC · lectura ---------- */
+add('T','L',`Considere el siguiente texto:${bq('Aunque parezca <u>paradójico</u>, los mensajes más cotidianos son los más difíciles de descifrar porque el hablante, dada la poca <u>trascendencia</u> del mensaje o la rapidez con que debe pensarlo, no tiene mucho tiempo para reflexionar sobre él.','(Madrigal, 2011)')}Según el texto, ¿cuáles palabras son equivalentes a “paradójico” y “trascendencia”?`,
+['absurdo - importancia','controversial - eficacia','incomprensible - necesidad','cuestionable - consecuencia'],0,`“Trascendencia” alude a importancia; eficacia, necesidad y consecuencia no son sus sinónimos. La única pareja válida es absurdo - importancia.`,TEC);
+add('T','L',`Considere el siguiente texto:${bq('La televisión nos tantaliza, quedamos como prendados de ella. Este efecto entre mágico y maléfico es obra, creo, del exceso de la luz que con su intensidad nos toma.','(Sábato, 2000)')}Según el texto, ¿cuál palabra resume el efecto de la televisión?`,
+['Nociva','Ilusoria','Atractiva','Seductora'],3,`El texto describe un efecto que cautiva y atrapa; “seductora” reúne lo mágico y lo maléfico mejor que las otras opciones.`,TEC);
+add('T','L',`Considere el siguiente texto:${bq(`En el momento de la fundación de la Roma Quadrata, el latín era una simple habla primitiva y ${gap} empleada por pastores, campesinos y forajidos soldados rudos; pero, conforme Roma comienza a lograr victoria tras victoria sobre otros pueblos, su idioma comienza a ${gap} por la misma Italia y fuera de sus fronteras.`,'(Quirós, 2000)')}Según el texto, ¿cuáles palabras completan el párrafo anterior con sentido lógico?`,
+['antigua - dividirse','rústica - expandirse','exótica - distribuirse','arcaica - transmitirse'],1,`El habla de pastores y soldados es rústica, y con las victorias de Roma el idioma se expande.`,TEC);
+add('T','L',`Considere el siguiente texto:${bq(`La diferencia entre mito y leyenda es imprecisa, ya que sus orígenes son ${gap}. En su lenguaje desempeñan un papel de particular relevancia la ${gap} y la alegoría; ya que describen figuras míticas, que generalmente son ${gap}.`,'(de la Torre, 2005)')}Según el texto, ¿cuáles palabras completan el párrafo anterior con sentido lógico?`,
+['idénticos - poesía - insólitas','semejantes - metáfora - simbólicas','exactos - ambigüedad - metafísicas','relacionados - historia - imaginarias'],1,`Si la diferencia es imprecisa, los orígenes son semejantes (no idénticos); la metáfora acompaña a la alegoría y las figuras míticas son simbólicas.`,TEC);
+add('T','L',`Considere el siguiente texto:${bq(`Al principio, en la isla de Nueva Guinea, donde hace unos 10.000 años se domesticó la caña de azúcar, la gente cogía las cañas y masticaba el tallo hasta sentir la ${gap} en la lengua. El azúcar era una especie de ${gap}, la cura de todos los males, y ocupaba un lugar destacado en los antiguos ${gap} de la isla.`,'(National Geographic, 2020)')}Según el texto, ¿cuáles palabras completan el párrafo anterior con sentido lógico?`,
+['dulzura - elixir - mitos','delicia - bálsamo - ritos','melaza - jarabe - símbolos','suavidad - remedio - cuentos'],0,`“La cura de todos los males” define a un elixir; la sensación en la lengua es la dulzura.`,TEC);
+add('T','L',`Considere el siguiente texto:${bq('Disculpen esta <u>impericia</u>, esta torpeza al escribir. Me atropello, nada va en orden. No soy escritor...','(Víquez, 1994)')}Según el texto, ¿cuál palabra es equivalente a “impericia”?`,
+['Desorden','Accidente','Negligencia','Incompetencia'],3,`“No soy escritor” da la clave: impericia es falta de destreza, es decir, incompetencia para esa tarea.`,TEC);
+add('T','L',`Considere el siguiente texto:${bq('El chiste es un dicho <u>breve</u>, <u>agudo</u> y <u>gracioso</u> que surge espontáneamente del pueblo; algunos investigadores y autores los recopilan para su publicación.','(de la Torre, 2005)')}Según el texto, ¿cuál palabra sintetiza los términos subrayados?`,
+['Sagaz','Burlesco','Ingenioso','Perspicaz'],2,`Sagaz y perspicaz solo recogen lo agudo; burlesco solo lo gracioso. Ingenioso reúne las tres cualidades.`,TEC);
+add('T','L',`Considere el siguiente texto:${bq('Machu Picchu es considerada, al mismo tiempo, una <u>obra maestra</u> de la arquitectura y la ingeniería. Sus peculiares características <u>arquitectónicas y paisajísticas</u>, y el velo de misterio que ha tejido a su alrededor buena parte de la literatura publicada sobre el sitio, lo han convertido en una de las siete maravillas del mundo moderno.','(Elaboración propia)')}Según el texto, ¿cuál opción sintetiza las características subrayadas?`,
+['Sitio espiritual','Paraje histórico','Lugar legendario','Entorno monumental'],3,`Lo subrayado habla de la obra construida y de su paisaje: un entorno físico imponente, no de su historia ni de su leyenda.`,TEC);
+add('T','L',`Considere el siguiente texto:${bq(`Los textos electrónicos presentan nuevas ${gap} y también nuevos retos que pueden tener gran impacto sobre las ${gap} que tiene el individuo de comprender lo que lee. La destreza en las nuevas competencias de Internet se convertirá en algo esencial para el futuro ${gap} de nuestros alumnos.`,'(Asociación Internacional de Lectura, 2001)')}Según el texto, ¿cuáles palabras completan el párrafo anterior con sentido lógico?`,
+['acciones - estrategias - progreso','ayudas - capacidades - alfabetismo','dificultades - habilidades - desarrollo','preferencias - actitudes - aprendizaje'],1,`El primer espacio se contrapone a “retos”: ayudas. Lo que el individuo tiene para comprender son capacidades.`,TEC);
+add('T','L',`Considere el siguiente texto:${bq('Ese texto, sin duda, por sus contenidos, por la manera en que está redactado, por su gran aporte histórico y demás características, promete tener gran <u>envergadura</u> para todos aquellos lectores que logren identificar toda su riqueza.','(Elaboración propia)')}Según el texto, ¿cuál palabra es equivalente a “envergadura”?`,
+['Calidad','Sentido','Significado','Trascendencia'],3,`Por su aporte histórico y su riqueza, el texto promete alcance e importancia: trascendencia.`,TEC);
+add('T','L',`Considere el siguiente texto:${bq('Actualmente, se desarrolla el vínculo entre seres orgánicos y la tecnología. Precisamente, la bioelectrónica aprovecha directamente el <u>prolífico</u> repertorio de sensores olfativos y el <u>sofisticado</u> sistema nervioso de los insectos para crear biorrobots.','(Hidalgo, 2020)')}Según el texto, ¿cuáles palabras se oponen a los términos subrayados?`,
+['limitado - básico','amplio - elemental','reducido - complejo','insuficiente - artificial'],0,`Prolífico significa abundante (opuesto: limitado) y sofisticado significa complejo (opuesto: básico).`,TEC);
+add('T','L',`Considere el siguiente texto:${bq('Los programas “divertidos” tienen mucho rating −y el rating es lo supremo−, no importa a costa de qué valor, ni quién lo financia. Son esos programas donde divertirse es degradar, o donde todo se banaliza. Como, si habiendo perdido la capacidad para la grandeza, nos conformáramos con una comedia de regular calidad.','(Sábato, 2000)')}Considere las siguientes afirmaciones:<br>A. Los programas culturales tienen poca popularidad.<br>B. Las personas seleccionan el programa según el nivel de audiencia.<br>C. La oferta tiende hacia la superficialidad y el entretenimiento.<br>De las anteriores, ¿cuáles se infieren del texto?`,
+['Solo A','Solo C','A y B','B y C'],1,`El texto no habla de programas culturales ni de cómo elige el público. Sí dice que todo se banaliza en busca de diversión.`,TEC);
+add('T','L',`Considere los siguientes textos:<div class="duo">${bq('<b>Texto 1</b><br>Es importante tener en cuenta que la empatía es una cualidad de la relación humana, sin la que nuestra mente no hubiera podido estructurarse saludablemente y aprendido a establecer relaciones con el mundo ni consigo misma en una cierta armonía y seguridad, ya que para que seamos capaces de dar sentido a nuestro propio mundo interno alguien ha tenido que hacerlo antes por nosotros.','(Artés, 2021)')}${bq('<b>Texto 2</b><br>La “empatía” es una habilidad adquirida que se relaciona con las condiciones socioculturales en las que nos criamos y las características estructurales y funcionales en donde transcurren nuestros procesos de socialización, incluyendo la formación escolar y las experiencias tempranas de nuestro “aprendizaje social”.','(Dehter, 2009)')}</div>Considere las siguientes afirmaciones acerca de la empatía:<br>A. Es necesaria para el bienestar del ser humano.<br>B. Es fundamental para el desarrollo mental.<br>C. Es una destreza aprendida con la convivencia.<br>De las anteriores, ¿cuáles se infieren de ambos textos?`,
+['Solo A','Solo C','A y B','B y C'],0,`B solo aparece en el texto 1 y C solo en el texto 2. Que la empatía favorece el bienestar de las personas se desprende de los dos.`,TEC);
+add('T','L',`Considere el siguiente texto:${bq('Los griegos desarrollaron una visión religiosa naturalista cimentada en los dioses del Olimpo, expresando sus creencias mediante la poesía y la música; cuando despertaron del mito y la fábula, cuestionaron el origen fantástico de sus conocimientos, surgiendo así la filosofía, que tiene, a partir de entonces, su origen en la razón humana y ya no más en las concepciones míticas.','(Martínez, 2016)')}Según el texto, la filosofía nace en Grecia debido a`,
+['la fama que gozaban los grandes pensadores griegos.','al desarrollo del pensamiento libre propiciado por los griegos.','las condiciones culturales que favorecieron el pensamiento crítico.','las explicaciones mitológicas que fundamentaron el pensamiento crítico.'],2,`El texto describe un cambio cultural: de las creencias míticas al cuestionamiento basado en la razón. No menciona pensadores famosos ni “pensamiento libre”.`,TEC);
+add('T','L',`Considere la siguiente información:<br>A. Cada persona tiene un único documento de identidad.<br>B. La papeleta presidencial presenta varios candidatos presidenciales.<br>C. Una persona con documento de identidad tiene la opción de elegir entre varios candidatos en la papeleta presidencial.<br><br>Los objetos anteriores se relacionan según las siguientes reglas:<br>La relación de un objeto con un objeto se simboliza: 1→1<br>La relación de un objeto con varios objetos se simboliza: 1→N<br>La relación de varios objetos con varios objetos se simboliza: N→N<br>La relación de varios objetos con un objeto se simboliza: N→1<br><br>¿Cómo se representa la relación de los objetos: persona → documento de identidad → papeleta presidencial?`,
+['1→1→1','1→1→N','1→N→N','1→N→1'],1,`Una persona tiene un solo documento (1→1) y con ese documento puede elegir entre varios candidatos (1→N).`,TEC);
+add('T','L',`Considere el siguiente texto:${bq('La palabra simpatía hace referencia a la puesta en común de dos individualidades en un intento de sintonizar emocionalmente, sin que por ello nadie deba hacer abstracción de lo que piensa o siente. Podemos afirmar que la simpatía tiene más que ver con la expresión subjetiva de sentimientos y pensamientos, mientras que la empatía busca la comprensión objetiva del mundo interno del otro.','(Artés, 2021)')}Según el texto, ¿en qué se basa la diferencia entre simpatía y empatía hacia otras personas?`,
+['En el balance con las propias emociones.','En la experimentación de su mundo interior.','En el grado de entendimiento de su mundo interno.','En la identificación imparcial con sus sentimientos.'],2,`La simpatía sintoniza emocionalmente; la empatía, además, busca comprender el mundo interno del otro. La diferencia está en cuánto se entiende.`,TEC);
+/* ================= Ítems nuevos (elaboración propia) ================= */
+/* ---------- TEC · lectura (estilo cuaderno TEC) ---------- */
+add('T','L',`Considere el siguiente texto:${bq('El informe fue redactado con tal <u>parquedad</u> que apenas ocupó media página, aunque no omitió ningún dato esencial.')}Según el texto, ¿cuál palabra es equivalente a “parquedad”?`,
+['Descuido','Brevedad','Claridad','Lentitud'],1,`Ocupó apenas media página sin omitir lo esencial: se escribió con pocas palabras, es decir, con brevedad.`);
+add('T','L',`Considere el siguiente texto:${bq('El orador ofreció un discurso <u>ameno</u> ante un público <u>escéptico</u> que había llegado con pocas expectativas.')}Según el texto, ¿cuáles palabras se oponen a los términos subrayados?`,
+['tedioso - crédulo','breve - atento','alegre - desconfiado','confuso - numeroso'],0,`Ameno es entretenido (opuesto: tedioso) y escéptico es quien duda (opuesto: crédulo).`);
+add('T','L',`Considere el siguiente texto:${bq(`Los manglares funcionan como una barrera ${gap} frente a las tormentas, pues sus raíces ${gap} la fuerza del oleaje antes de que alcance la costa.`)}Según el texto, ¿cuáles palabras completan el párrafo anterior con sentido lógico?`,
+['frágil - aumentan','artificial - generan','natural - amortiguan','temporal - ignoran'],2,`Un manglar es parte de la naturaleza, y una barrera cumple su función si reduce (amortigua) la fuerza del oleaje.`);
+add('T','L',`Considere el siguiente texto:${bq(`Aprender un idioma exige ${gap}: no basta con memorizar listas de palabras, sino que hay que ${gap} el idioma en situaciones reales hasta que su uso se vuelva ${gap}.`)}Según el texto, ¿cuáles palabras completan el párrafo anterior con sentido lógico?`,
+['paciencia - evitar - difícil','talento - traducir - extraño','rapidez - olvidar - obligatorio','constancia - practicar - natural'],3,`“Hasta que” indica un proceso sostenido (constancia) de uso real (practicar) cuyo resultado es la soltura (natural).`);
+add('T','L',`Considere el siguiente texto:${bq('El colibrí es un ave <u>diminuta</u>, <u>veloz</u> y <u>precisa</u> que puede mantenerse suspendida frente a una flor.')}Según el texto, ¿cuál palabra sintetiza los términos subrayados?`,
+['Frágil','Ágil','Vistosa','Tímida'],1,`Pequeña, rápida y exacta en sus movimientos: la palabra que reúne las tres ideas es ágil.`);
+add('T','L',`Considere el siguiente texto:${bq('Durante siglos, los mapas se dibujaron a partir de relatos de viajeros; quien nunca había salido de su ciudad podía, sin embargo, trazar costas lejanas. Con la llegada de las imágenes satelitales, el oficio dejó de depender de lo que otros contaban.')}Del texto anterior se puede inferir que los mapas antiguos`,
+['dependían de testimonios indirectos.','eran copias exactas del territorio.','solo podían hacerlos los viajeros.','no se usaban para navegar.'],0,`Se dibujaban según lo que otros contaban; incluso quien no viajaba podía hacerlos.`);
+add('T','L',`Considere el siguiente texto:${bq('El trueque fue una de las primeras formas de comercio: se cambiaba un bien por otro sin usar dinero. Su principal dificultad era encontrar a alguien que tuviera lo que uno buscaba y que, a la vez, quisiera lo que uno ofrecía.')}Considere las siguientes afirmaciones:<br>A. El trueque requería que coincidieran las necesidades de dos personas.<br>B. El dinero ya existía cuando surgió el trueque.<br>C. El trueque era un sistema sin dificultades.<br>De las anteriores, ¿cuáles se infieren del texto?`,
+['Solo A','Solo B','A y B','B y C'],0,`El texto dice que la dificultad era hallar a alguien con la necesidad complementaria. No dice que el dinero existiera, y menciona una dificultad, así que C es falsa.`);
+const T_LEER = `<div class="duo">${bq('<b>Texto 1</b><br>Leer en papel favorece la concentración: sin notificaciones ni enlaces, el lector avanza a su ritmo y recuerda mejor lo leído. Además, muchos lectores valoran el objeto mismo: subrayar, pasar las páginas, guardar el libro en un estante.')}${bq('<b>Texto 2</b><br>La lectura en pantalla ha puesto miles de títulos al alcance de cualquiera con un teléfono. Sin embargo, la misma pantalla que ofrece el libro ofrece también mensajes y videos, de modo que sostener la atención exige mayor esfuerzo.')}</div>`;
+add('T','L',`Considere los siguientes textos:${T_LEER}De ambos textos se deduce que`,
+['la lectura en papel es más barata.','el soporte de lectura influye en la atención del lector.','las pantallas impiden comprender lo leído.','los libros en papel desaparecerán.'],1,`El texto 1 dice que el papel favorece la concentración; el texto 2, que la pantalla exige más esfuerzo para sostener la atención.`);
+add('T','L',`Considere los siguientes textos:${T_LEER}Considere las siguientes características:<br>A. Mayor acceso a títulos.<br>B. Menos distracciones.<br>C. Valor del libro como objeto.<br>De las anteriores, ¿cuáles se presentan en el texto 1 como ventajas de la lectura en papel?`,
+['Solo A','Solo C','A y B','B y C'],3,`El texto 1 menciona la ausencia de notificaciones (B) y el gusto por el objeto (C). El acceso a muchos títulos es una ventaja de la pantalla, en el texto 2.`);
+const T_EQUIPO = `<div class="duo">${bq('<b>Texto 1</b><br>El trabajo en equipo permite repartir las tareas según las habilidades de cada persona y llegar a soluciones que nadie habría encontrado por separado. Eso sí: requiere reuniones, acuerdos y tiempo para coordinarse.')}${bq('<b>Texto 2</b><br>Trabajar solo da libertad para organizar el propio tiempo y evita discusiones. Pero cuando el problema es grande, una sola persona difícilmente reúne todos los conocimientos necesarios para resolverlo.')}</div>`;
+add('T','L',`Considere los siguientes textos:${T_EQUIPO}De ambos textos se deduce que el trabajo en equipo`,
+['es siempre más rápido que el trabajo individual.','elimina los desacuerdos entre las personas.','resulta ventajoso ante problemas complejos.','es innecesario para quien organiza bien su tiempo.'],2,`El texto 1 dice que el equipo logra soluciones que nadie hallaría solo; el texto 2, que una sola persona no reúne todo el conocimiento para un problema grande.`);
+add('T','L',`Considere los siguientes textos:${T_EQUIPO}¿Cuál es una característica mencionada solo en el texto 2?`,
+['La necesidad de reuniones y acuerdos.','La libertad para organizar el propio tiempo.','El reparto de tareas según las habilidades.','Las soluciones que nadie hallaría por separado.'],1,`La libertad para organizar el tiempo aparece en el texto 2 como ventaja de trabajar solo. Las otras tres opciones vienen del texto 1.`);
+add('T','L',`Considere las siguientes instrucciones para leer un código de franjas de colores, de izquierda a derecha:<br>A. Cada franja roja vale 5.<br>B. Cada franja azul vale 2.<br>C. Una franja negra no tiene valor propio, pero duplica el valor de la franja que tiene inmediatamente a su derecha.<br>D. El valor del código es la suma de los valores de sus franjas.<br><br>¿Cuál es el valor del código: negra, roja, azul, negra, azul?`,
+['9','14','16','18'],2,`La primera negra duplica la roja (10); la azul vale 2; la segunda negra duplica la última azul (4). Total: 10 + 2 + 4 = 16.`);
+
+/* ---------- PAA UCR/UNA · lectura ---------- */
+add('P','L',`Un proverbio dice que el mar en calma nunca hizo marinero experto.<br><br>Según el proverbio, ¿qué carácter tienen las dificultades?`,
+['Destructivo.','Formador.','Pasajero.','Inevitable.'],1,`Si la calma no forma al marinero, lo que lo forma es la dificultad.`);
+add('P','L',`Quien llega a la cima no siempre es el más rápido, sino el que no dejó de caminar.<br><br>Según el texto anterior, ¿cuál característica permite alcanzar una meta?`,
+['La velocidad.','La suerte.','La constancia.','La fuerza.'],2,`Llega “el que no dejó de caminar”: quien persiste.`);
+add('P','L',`El rancho de paja es una construcción que algunos agricultores levantan junto a sus cultivos para resguardarse durante las semanas de cosecha.<br><br>De acuerdo con el texto anterior, ¿cuál es una idea implícita?`,
+['El rancho de paja es la vivienda permanente de los agricultores.','Los agricultores ocupan el rancho de paja en época de cosecha.','Todos los agricultores construyen ranchos de paja.','El rancho de paja resiste cualquier clima.'],1,`Se levanta para resguardarse durante la cosecha: ese es el momento en que se usa. El texto dice “algunos”, no todos.`);
+add('P','L',`Una pensadora sostenía que casi nadie ignora por incapacidad: ignoramos lo que no nos interesa averiguar.<br><br>Según esta pensadora, ¿cómo puede caracterizarse la ignorancia?`,
+['Como inevitable.','Como hereditaria.','Como peligrosa.','Como elegida.'],3,`Si ignoramos lo que no nos interesa averiguar, la ignorancia depende de nuestra voluntad.`);
+add('P','L',`Se dice que el río nunca pasa dos veces por el mismo lugar, pero quien no mira el cauce tropieza siempre con la misma piedra.<br><br>¿Cuál es una idea implícita en el texto anterior?`,
+['Los errores se repiten cuando no se atiende a la experiencia.','Los ríos cambian de cauce cada año.','Tropezar es inevitable.','La experiencia siempre evita los errores.'],0,`Tropieza con la misma piedra “quien no mira”: el error se repite por falta de atención.`);
+add('P','L',`Las abejas danzan para indicar dónde hay flores; los lobos aúllan para reunir a la manada; las luciérnagas emiten destellos para encontrar pareja. Las personas, por su parte, recurren sobre todo a la palabra. De una u otra forma, los seres vivos intercambian mensajes.<br><br>De acuerdo con lo anterior, ¿cuál es una idea implícita en el texto?`,
+['La palabra comunica más que la danza de las abejas.','Solo los animales que emiten sonidos se comunican.','Ciertos comportamientos animales cumplen una función comunicativa.','Todo destello de luz transmite un mensaje.'],2,`Danzar, aullar y emitir destellos son conductas que sirven para transmitir mensajes. El texto no compara cantidades de información.`);
+add('P','L',`Caminar a diario reduce la tensión y mejora la capacidad de concentración; incluso ayuda a conciliar el sueño. Sin embargo, no se ha comprobado que caminar tenga algún efecto sobre la memoria a largo plazo.<br><br>¿Cuál de las siguientes afirmaciones contradice el texto anterior?`,
+['Caminar ayuda a relajarse.','Caminar puede beneficiar a quien duerme mal.','Caminar mejora todas las capacidades mentales.','Caminar favorece la atención.'],2,`El texto aclara que no se ha comprobado un efecto sobre la memoria a largo plazo; por eso no se puede decir “todas”.`);
+add('P','L',`Donde hay diálogo no hacen falta vencedores ni vencidos, decía un viejo maestro.<br><br>Según este maestro, ¿cuál palabra describe, de manera resumida, el diálogo?`,
+['Conciliador.','Competitivo.','Silencioso.','Persuasivo.'],0,`Si no hay vencedores ni vencidos, el diálogo acerca a las partes en lugar de enfrentarlas.`);
+add('P','L',`Mirar el mapa es una cosa y emprender el viaje, otra, pues solo el viaje tiene consecuencias.<br><br>¿Cuál de las siguientes opciones presenta la idea del texto anterior con otras palabras?`,
+['Planear y actuar son lo mismo.','Actuar compromete más que planear.','Mirar el mapa exige más esfuerzo que viajar.','Todo viaje requiere un mapa.'],1,`Solo el viaje (la acción) tiene consecuencias; mirar el mapa (planear) no compromete.`);
+add('P','L',`A una persona hay que comprenderla por lo que piensa y también por lo que hace.<br><br>En resumen, ¿cómo es el ser humano según el texto?`,
+['Racional y emotivo.','Único y cambiante.','Pensante y actuante.','Libre y responsable.'],2,`“Lo que piensa” y “lo que hace” corresponden a pensamiento y acción.`);
+add('P','L',`Un equipo es más que la suma de sus jugadores. Tomando en cuenta la afirmación anterior, lea las siguientes proposiciones:<br>I. Un grupo de buenos músicos que nunca ha ensayado junto no suena necesariamente como una buena orquesta.<br>II. Para preparar un jugo de naranja solo se necesitan naranjas.<br>III. Un índice enumera los capítulos de un libro.<br><br>¿Cuál(es) de las proposiciones anteriores se adecúa(n) a la afirmación?`,
+['Solo la I.','Solo la II.','Solo la I y la III.','Solo la II y la III.'],0,`En I, juntar buenas partes no basta: hace falta algo más para tener el todo. II y III describen conjuntos que son solo la suma de sus partes.`);
+add('P','L',`La población de un país no se reparte de manera pareja: hay ciudades muy pobladas y regiones casi deshabitadas. A lo largo del tiempo, la disponibilidad de agua, la fertilidad de la tierra y las oportunidades de trabajo han llevado a las personas a trasladarse hacia donde les resulta más fácil vivir. Por eso, en las zonas áridas y en las altas montañas habita poca gente.<br><br>¿Cuál idea está implícita en el texto anterior?`,
+['Las personas se trasladan únicamente por motivos de trabajo.','En las zonas poco pobladas resulta más difícil vivir.','Las ciudades siempre tienen tierras fértiles.','La población terminará por repartirse de manera pareja.'],1,`La gente se va hacia donde es más fácil vivir; si en un lugar habita poca gente es porque vivir allí cuesta más.`);
+add('P','L',`Los habitantes de las tierras altas se llaman a sí mismos “gente de la niebla”, aunque los pueblos vecinos los conocen con un apodo que significa “los que hablan bajo”.<br><br>¿Cuál de las siguientes opciones se expresa, con certeza, en el texto anterior?`,
+['Que los habitantes de las tierras altas hablan en voz baja.','Que los dos nombres significan lo mismo.','Que los habitantes de las tierras altas tienen un nombre propio para referirse a sí mismos.','Que los pueblos vecinos desprecian a los habitantes de las tierras altas.'],2,`El texto afirma que se llaman a sí mismos “gente de la niebla”. Que hablen bajo es solo lo que dice un apodo ajeno.`);
+add('P','L',`Hay quienes aseguran percibir la presencia de alguien antes de verlo, como si existiera un sentido aún no explicado. En contraste, otras personas dudan incluso de lo que la ciencia ha medido con precisión, como las ondas de radio, solo porque no pueden verlo con sus propios ojos.<br><br>¿Cuál opción resume el texto anterior?`,
+['Una prueba de que existen sentidos desconocidos.','Una crítica a los métodos de la ciencia.','Una explicación de cómo funcionan las ondas de radio.','Un contraste entre actitudes de confianza frente a lo que no se ve.'],3,`Unos confían en algo que no se ha explicado; otros desconfían de algo que sí se ha medido. El texto opone esas dos actitudes.`);
+add('P','L',`Si las personas recordaran con exactitud todas las promesas que les han hecho, los vendedores deshonestos no podrían convencerlas con tanta facilidad.<br><br>¿Cuál es una idea implícita del texto anterior?`,
+['Los vendedores siempre mienten.','Las personas que se dejan convencer con facilidad no recuerdan todo con exactitud.','Recordar promesas es imposible.','Quien tiene buena memoria nunca compra.'],1,`Si recordar con exactitud impediría el engaño, quienes son engañados no recuerdan con exactitud.`);
+add('P','L',`Se empieza a ser adulto el día en que uno responde por sus propias decisiones.<br><br>Según el texto anterior, ¿cuál característica define la adultez?`,
+['La edad suficiente.','La independencia económica.','La experiencia acumulada.','La responsabilidad.'],3,`“Responder por sus propias decisiones” es hacerse responsable de ellas.`);
+add('P','L',`Cada vez que alguien comparte lo que sabe sin esperar nada a cambio, multiplica el conocimiento y mantiene viva la generosidad.<br><br>Con respecto a la generosidad, ¿cuál de las siguientes opciones se expresa en el texto anterior?`,
+['Que siempre es recompensada.','Que depende del conocimiento.','Que es ajena al interés personal.','Que es escasa en la sociedad.'],2,`La generosidad se mantiene viva cuando se da “sin esperar nada a cambio”, es decir, sin interés propio.`);
+add('P','L',`En la novela de otras épocas, la ciudad era la gran protagonista y los personajes apenas se asomaban a sus calles. En la novela actual, lo que domina es la vida interior de los personajes.<br><br>En la novela actual, ¿cómo se presenta la ciudad en relación con los personajes?`,
+['La ciudad ha pasado a un segundo plano.','La ciudad ha desaparecido de la novela.','La ciudad ha sido idealizada.','La ciudad se ha vuelto protagonista.'],0,`Ahora domina la vida interior de los personajes; la ciudad perdió el protagonismo, pero el texto no dice que haya desaparecido.`);
+add('P','L',`La ayuda humilla cuando se da desde arriba, como quien arroja una moneda; la cooperación, en cambio, se da entre iguales y supone reconocimiento mutuo.<br><br>Según el texto anterior, ¿qué se puede concluir, con certeza?`,
+['Que la ayuda siempre humilla.','Que la cooperación es más frecuente que la ayuda.','Que quien ayuda desprecia a los demás.','Que la cooperación implica reconocer al otro.'],3,`El texto dice que la cooperación “supone reconocimiento mutuo”. La ayuda humilla solo “cuando se da desde arriba”, no siempre.`);
+add('P','L',`La libertad es tan necesaria como el agua.<br><br>De acuerdo con el texto anterior, sin libertad, tener agua es`,
+['inútil.','insuficiente.','peligroso.','imposible.'],1,`Si las dos son igual de necesarias, tener solo una no basta.`);
+add('P','L',`El notable aumento de la conectividad en las últimas décadas ha transformado a las ciudades: en ellas, un número creciente de personas trabaja, estudia y compra sin salir de casa.<br><br>En resumen, ¿cómo pueden definirse las ciudades actuales según el texto?`,
+['Como lugares aislados.','Como espacios de vida conectada.','Como centros industriales.','Como zonas despobladas.'],1,`Lo que las define en el texto es que cada vez más actividades se hacen por medio de la conectividad.`);
+add('P','L',`Un comentarista suele restar valor al trabajo de tres directoras de cine. A la primera la llama anticuada, aunque sus películas rompieron con la forma de filmar de su época; a la segunda le reprocha hablar de todo el país, cuando ella aclara que solo retrata su barrio; y a la tercera la acusa de copiar a otros, sin presentar ninguna prueba.<br><br>¿Cuál de las siguientes opciones presenta una idea implícita del texto anterior?`,
+['Las películas de la primera directora fueron innovadoras.','La segunda directora retrata la vida de todo el país.','La tercera directora copió el trabajo de otros.','El comentarista respalda sus críticas con pruebas.'],0,`Si sus películas “rompieron con la forma de filmar de su época”, fueron innovadoras. Las otras opciones contradicen el texto.`);
+add('P','L',`La reseña de un libro ofrece una opinión, siempre personal, sobre el lugar que ocupa una obra en su época. No dice si la portada es atractiva o no; examina lo que el libro propone y cómo dialoga con su tiempo.<br><br>¿Cuál de las siguientes opciones no es una idea implícita del texto anterior?`,
+['La reseña es subjetiva.','La reseña valora el diseño del libro.','La reseña se interesa por el contenido de la obra.','La reseña relaciona la obra con su contexto.'],1,`El texto dice expresamente que la reseña no juzga la portada. Las otras tres ideas sí se desprenden de él.`);
+add('P','L',`Desde hace siglos, las comunidades costeras han usado algas para abonar la tierra. Hoy, extractos de esas algas forman parte de muchos fertilizantes industriales.<br><br>¿Cuál de las siguientes afirmaciones se concluye, con certeza, del texto anterior?`,
+['Las algas son el mejor abono que existe.','Los fertilizantes industriales se elaboran solo con algas.','Componentes de las algas se usan en la industria actual de fertilizantes.','Las comunidades costeras ya no usan algas.'],2,`“Extractos de esas algas forman parte de muchos fertilizantes”: se usan componentes, en muchos (no todos) y no como único ingrediente.`);
+add('P','L',`Entre las construcciones más admiradas del mundo antiguo están los faros. Según se cuenta, el gobernante que ordenaba levantar uno buscaba que los navegantes recordaran su nombre cada vez que vieran la luz.<br><br>Según la información anterior, ¿cuál razón motivaba al gobernante a construir un faro?`,
+['Proteger a los navegantes.','Demostrar su riqueza.','Ser recordado.','Vigilar el mar.'],2,`El texto dice que buscaba que los navegantes recordaran su nombre.`);
+add('P','L',`Las rocas pueden agruparse según su origen: ígneas, si provienen del magma; sedimentarias, si se forman por acumulación de materiales; y metamórficas, si resultan de la transformación de otras rocas.<br><br>¿Cuál es el tema principal del texto anterior?`,
+['La composición de las rocas.','La utilidad de las rocas.','La antigüedad de las rocas.','La clasificación de las rocas.'],3,`El texto presenta tres grupos de rocas y el criterio para agruparlas: eso es una clasificación.`);
+add('P','L',`Los antiguos constructores de puentes buscaban la solidez mediante el cálculo, cuidando el peso y la distribución de las cargas. Así levantaron acueductos que todavía hoy siguen en pie. Un camino o una muralla pudieron ser otras de sus obras.<br><br>¿Cuál es la idea implícita del texto anterior?`,
+['Que el cálculo era un medio para lograr construcciones sólidas.','Que los acueductos son las obras más famosas de la Antigüedad.','Que los caminos y las murallas se construyeron después de los acueductos.','Que solo el cálculo garantiza la solidez de una obra.'],0,`Buscaban la solidez “mediante el cálculo”. El texto no dice que fuera el único medio ni establece un orden entre las obras.`);
+add('P','L',`Según algunos astrónomos, la Luna se formó hace miles de millones de años a partir de los restos de un gran choque entre la Tierra y otro cuerpo celeste. Esta idea cobra fuerza al comparar las rocas lunares con las terrestres: su composición es muy parecida.<br><br>¿Cuál opción resume el texto anterior?`,
+['Una descripción comprobada del origen de la Luna.','Una hipótesis sobre el origen de la Luna y un indicio que la respalda.','Una comparación entre los planetas del sistema solar.','Una hipótesis descartada sobre el origen de la Luna.'],1,`“Según algunos astrónomos” señala una hipótesis; el parecido de las rocas es el indicio que le da fuerza.`);
+add('P','L',`Una enana marrón tiene casi la masa necesaria para brillar como el Sol. Si reuniera un poco más de materia, se encendería como una estrella común.<br><br>Según el texto, ¿cuál característica condicionaría que una enana marrón se encienda como estrella?`,
+['La edad.','La forma.','La distancia.','La masa.'],3,`Le falta “un poco más de materia”: la condición es la masa.`);
+add('P','L',`El faro se alza sobre el punto más alto del acantilado. Su lámpara es la primera luz que distinguen los barcos al acercarse y la última que pierden de vista al alejarse.<br><br>Lea las siguientes proposiciones:<br>I. El faro nunca se apaga.<br>II. El faro está ubicado en un lugar elevado.<br>III. Los barcos solo navegan de noche.<br><br>¿Cuál de las anteriores proposiciones contiene una idea inferida del texto?`,
+['Solo la I.','Solo la II.','Solo la I y la II.','Solo la II y la III.'],1,`Está en el punto más alto del acantilado: un lugar elevado. Nada indica que nunca se apague ni que los barcos naveguen solo de noche.`);
+add('P','L',`El bambú gigante puede alcanzar hasta treinta metros de altura.<br><br>Según el texto anterior, ¿cuál de las siguientes opciones presenta, con certeza, una idea implícita sobre el bambú gigante?`,
+['Que mide treinta metros de altura.','Que nunca mide menos de treinta metros.','Que es la planta más alta que existe.','Que puede medir menos de treinta metros.'],3,`“Hasta treinta metros” fija un máximo: un bambú puede medir eso o menos.`);
+add('P','L',`Una semilla liviana viaja lejos arrastrada por el viento, mientras que una semilla pesada cae cerca de la planta que la produjo.<br><br>¿Cuál de las siguientes opciones presenta una idea implícita del texto anterior?`,
+['El peso de la semilla influye en la distancia a la que se dispersa.','Las semillas pesadas no germinan.','El viento daña las semillas.','Las semillas livianas son mejores que las pesadas.'],0,`La liviana llega lejos y la pesada queda cerca: la diferencia está en el peso.`);
+add('P','L',`Las micorrizas son la unión de un hongo con las raíces de una planta: el hongo recibe azúcares y la planta absorbe mejor el agua. Ninguno de los dos pierde con el trato.<br><br>Según el texto, ¿cómo puede definirse la relación entre el hongo y la planta?`,
+['Como competencia.','Como dependencia.','Como beneficio mutuo.','Como parasitismo.'],2,`Cada uno recibe algo y ninguno pierde.`);
+add('P','L',`Se puede conocer un barrio mediante un censo que registre qué tipos de comercio hay y qué cantidad de cada uno.<br><br>De acuerdo con el texto, ¿cómo se conoce un barrio?`,
+['Sabiendo cuáles y cuántos comercios tiene.','Sabiendo cuáles comercios tiene y dónde están.','Sabiendo cómo son y cuántos comercios tiene.','Sabiendo cuántos comercios tiene y para qué sirven.'],0,`“Qué tipos” responde a cuáles; “qué cantidad” responde a cuántos.`);
+add('P','L',`Un fisiólogo pensaba que el sueño y el hambre seguían ritmos semejantes, pero negaba que el hambre fuera la causa del sueño.<br><br>Según este fisiólogo, ¿qué se concluye sobre el sueño?`,
+['Que era provocado por el hambre.','Que provocaba el hambre.','Que era más importante que el hambre.','Que no era causado por el hambre.'],3,`Reconocía ritmos parecidos, pero negaba la relación de causa.`);
+add('P','L',`El realismo sostiene que las cosas existen aunque nadie las perciba, mientras que el idealismo afirma que las cosas solo existen en tanto alguien las percibe.<br><br>Según el texto anterior, ¿qué se concluye sobre el realismo?`,
+['Que contradice el idealismo.','Que complementa el idealismo.','Que ignora el idealismo.','Que demuestra el idealismo.'],0,`Una postura afirma lo que la otra niega: existen sin ser percibidas / solo existen si son percibidas.`);
+add('P','L',`A menudo estamos tan ocupados planeando el mañana que olvidamos de dónde venimos. Sin embargo, nuestras raíces son las que explican lo que hoy somos.<br><br>¿Cuál opción reproduce una idea del texto anterior?`,
+['Que el futuro no importa.','Que el pasado es más importante que el futuro.','Que planear es inútil.','Que el presente se entiende a partir del pasado.'],3,`Las raíces (el pasado) “explican lo que hoy somos” (el presente). El texto no compara la importancia del pasado y el futuro.`);
+add('P','L',`La empatía consiste en reconocer lo que siente otra persona y responder teniéndolo en cuenta, sin dejar de lado lo que uno mismo necesita. Imagine la siguiente situación: Marco debe estudiar para un examen y su compañero Luis, que está triste por una mala nota, le pide conversar esa misma noche.<br><br>De acuerdo con la definición de empatía del texto, ¿cuál respuesta presenta a Marco como una persona empática?`,
+['Marco le dice que no tiene tiempo para problemas ajenos.','Marco deja de estudiar, conversa toda la noche y reprueba el examen.','Marco le dice que entiende cómo se siente y le propone conversar media hora ahora y seguir mañana después del examen.','Marco finge escucharlo mientras repasa sus apuntes.'],2,`Es la única respuesta que reconoce lo que siente Luis y, a la vez, cuida lo que Marco necesita.`);
+add('P','L',`Quien aprende a tocar guitarra pasa por un periodo de práctica en el que suele equivocarse muchas veces. Con el tiempo, logra tocar con soltura.<br><br>Analice las siguientes proposiciones:<br>I. Tocar guitarra con soltura no requiere práctica.<br>II. Durante la práctica se cometen errores.<br>III. Algunas personas aprenden más rápido que otras.<br><br>De las anteriores proposiciones, ¿cuál(es) hace(n) que el texto principal sea falso?`,
+['Solo la I.','Solo la II.','Solo la III.','Solo la I y la III.'],0,`El texto afirma que se llega a la soltura tras un periodo de práctica; I lo niega. II coincide con el texto y III no lo contradice.`);
+add('P','L',`En muchos oficios, la tecnología, lejos de aliviar la carga de trabajo, ha hecho que las jornadas se extiendan más allá del horario.<br><br>De acuerdo con lo anterior, ¿cuál de las siguientes afirmaciones reproduce lo expuesto en el texto?`,
+['La tecnología eliminó los horarios.','La tecnología redujo el trabajo.','La tecnología mejoró los salarios.','La tecnología alargó las jornadas.'],3,`“Ha hecho que las jornadas se extiendan”: las alargó.`);
+
+/* ---------- Lógica (PAA y TEC) ---------- */
+add('X','G',`En una bodega hay dos sacos de semillas. El saco M solo tiene semillas de maíz y el saco F solo tiene semillas de frijol. Se pasan 20 semillas del saco M al saco F, se revuelve bien y luego se pasan 12 semillas del saco F al saco M.<br><br>¿Cuál de las siguientes afirmaciones sucedió con certeza?`,
+['En el saco F no quedaron semillas de maíz.','En el saco M quedó una o más semillas de frijol.','En el saco F quedaron 8 o más semillas de maíz.','En el saco M quedaron solo semillas de maíz.'],2,`Entraron 20 semillas de maíz al saco F y salieron 12 semillas en total; aunque las 12 fueran de maíz, quedan 8.`);
+add('X','G',`Un grupo de amigos busca una actividad en la que todos puedan participar. Se sabe que:<br>• A todos les gusta caminar y ninguno sabe nadar.<br>• Todos toleran el frío y a ninguno le gustan las alturas.<br>• Algunos saben cocinar y no quieren madrugar.<br><br>De acuerdo con lo anterior, ¿qué se puede concluir, con certeza?`,
+['Todos pueden hacer una caminata por un bosque frío, pero no bucear.','Algunos pueden bucear y escalar.','Todos pueden escalar una pared alta, pero no caminar.','Algunos saben cocinar y todos quieren madrugar.'],0,`A todos les gusta caminar y toleran el frío; ninguno sabe nadar, así que bucear queda descartado.`);
+add('X','G',`Cuatro ciclistas —Ana, Bruno, Carla y Diego— terminaron una competencia sin empates. Se sabe que:<br>• Ana llegó antes que Diego.<br>• Carla llegó antes que Bruno.<br>• Ana llegó antes que Bruno.<br><br>¿En qué posiciones pudo haber llegado Ana?`,
+['Solo en la primera.','En la primera o la segunda.','En la segunda o la tercera.','En la primera o la tercera.'],1,`Diego y Bruno llegaron después de Ana, así que ella no pudo ser tercera ni cuarta. Fue primera, o segunda si Carla llegó antes.`);
+add('X','G',`En una fila de cuatro casilleros, dos guardan libros, uno guarda zapatos y uno está vacío. El casillero vacío no está en ningún extremo de la fila.<br><br>¿Cuál de las siguientes opciones, con certeza, es verdadera?`,
+['Los casilleros con libros están juntos.','El casillero con zapatos está en un extremo.','Un casillero con libros está junto al casillero vacío.','El casillero con zapatos está junto al casillero vacío.'],2,`El vacío tiene dos vecinos y solo hay un casillero con zapatos; uno de los vecinos, como mínimo, guarda libros.`);
+add('X','G',`El reloj de la cocina y el de la sala marcan horas con 12 minutos de diferencia. La hora que marca el reloj de la sala tiene 4 minutos de diferencia con la hora oficial.<br><br>Cuando la hora oficial es 3:20 p. m., ¿qué hora es imposible que marque el reloj de la cocina?`,
+['3:24 p. m.','3:04 p. m.','3:12 p. m.','3:36 p. m.'],0,`El de la sala marca 3:16 o 3:24. El de la cocina, 12 minutos más o menos: 3:04, 3:28, 3:12 o 3:36. Nunca 3:24.`);
+add('X','G',`En una actividad, 12 niños reciben 2 frutas cada uno. En total se repartieron 13 bananos, 7 manzanas y 4 naranjas.<br><br>¿Cuál de las siguientes situaciones ocurrió con certeza?`,
+['Uno o más niños recibieron dos manzanas.','Uno o más niños recibieron un banano y una naranja.','Uno o más niños recibieron una manzana y una naranja.','Uno o más niños recibieron dos bananos.'],3,`Hay 13 bananos y solo 12 niños: si cada niño recibiera a lo sumo un banano, sobraría uno.`);
+add('X','G',`En cierta isla imaginaria, las sombrillas se usan como sillas, los libros como almohadas y las cucharas como llaves.<br><br>Si alguien quisiera imitar las costumbres de esa isla, ¿qué debería hacer?`,
+['Sentarse en sombrillas, dormir sobre libros y abrir puertas con cucharas.','Leer sombrillas, sentarse en libros y comer con llaves.','Dormir sobre sillas, leer almohadas y abrir puertas con llaves.','Sentarse en cucharas, dormir sobre sombrillas y abrir puertas con libros.'],0,`Cada objeto toma la función del segundo: sombrilla → silla, libro → almohada, cuchara → llave.`);
+add('X','G',`Considere las siguientes premisas:<br>Premisa 1: Todos los colibríes son aves.<br>Premisa 2: Algunos animales del jardín son colibríes.<br><br>De las premisas anteriores se sigue que`,
+['todos los animales del jardín son aves.','algunos animales del jardín son aves.','ningún ave vive en el jardín.','algunas aves no son animales.'],1,`Los animales del jardín que son colibríes son aves. De los demás no se sabe nada.`);
+add('X','G',`Considere las siguientes premisas:<br>Premisa 1: Si llueve, entonces Marta lleva paraguas o se queda en casa.<br>Premisa 2: Si Marta se queda en casa, entonces no va al cine.<br>Premisa 3: Marta no llevó paraguas y no se quedó en casa.<br><br>De las premisas anteriores se sigue que`,
+['llovió.','Marta no fue al cine.','Marta fue al cine.','no llovió.'],3,`Si hubiera llovido, Marta habría llevado paraguas o se habría quedado en casa. No hizo ninguna de las dos cosas, así que no llovió. Sobre el cine no se puede concluir.`);
+add('X','G',`Dos palabras se llaman “gemelas” si tienen la misma cantidad de letras. Por ejemplo, <i>casa</i> y <i>pelo</i> son gemelas.<br><br>Considere las siguientes afirmaciones:<br>I. Si P y Q son gemelas, y Q y R son gemelas, entonces P y R son gemelas.<br>II. Si dos palabras empiezan con la misma letra, entonces son gemelas.<br>III. Al sumar las cantidades de letras de dos palabras gemelas se obtiene un número par.<br><br>¿Cuáles de las afirmaciones anteriores son, con certeza, verdaderas?`,
+['Solo la I.','Solo la II.','Solo la I y la III.','La I, la II y la III.'],2,`I: las tres tienen la misma cantidad de letras. III: n + n = 2n, siempre par. II falla: <i>sol</i> y <i>sombra</i> empiezan igual y no son gemelas.`);
+add('X','G',`La única hermana del padre de Sofía tiene una hija llamada Elena.<br><br>¿Qué relación tiene con Sofía el abuelo materno de Elena?`,
+['Es su tío.','Es su padre.','Es su primo.','Es su abuelo.'],3,`La madre de Elena es la tía paterna de Sofía. El padre de esa tía es también el padre del papá de Sofía: su abuelo.`);
+add('X','G',`Tres cajas R, S y T contienen una ficha cada una: dos fichas son azules y una es blanca. Las fichas de R y T son de distinto color.<br><br>Considere las siguientes proposiciones:<br>I. La ficha de R es azul.<br>II. La ficha de S es azul.<br>III. La ficha de T es blanca.<br><br>De las anteriores, ¿cuáles se cumplen con certeza?`,
+['Solo la I.','Solo la II.','Solo la I y la II.','Solo la II y la III.'],1,`Entre R y T hay una azul y una blanca; la otra ficha azul tiene que estar en S. No se sabe cuál de R y T es la blanca.`);
+add('X','G',`Luis, Mario y Nora tienen cada uno una mascota distinta: un perro, un gato y un loro. Se sabe que Luis no tiene el perro y que Nora no tiene el perro ni el loro.<br><br>¿Quién tiene el loro?`,
+['Luis.','Mario.','Nora.','No se puede determinar.'],0,`Nora tiene el gato. El perro no es de Luis ni de Nora: es de Mario. A Luis le queda el loro.`);
+add('X','G',`Si anteayer fue jueves, ¿qué día será pasado mañana?`,
+['Domingo.','Lunes.','Martes.','Miércoles.'],1,`Anteayer jueves → hoy es sábado → pasado mañana es lunes.`);
+add('X','G',`Un reglamento establece: “Para obtener la licencia de conducir, toda persona debe aprobar una prueba práctica”.<br><br>¿Cuál de las siguientes afirmaciones, de ser cierta, mostraría que el reglamento no se cumple?`,
+['Algunas personas reprueban la prueba práctica.','Hay personas que obtuvieron la licencia sin aprobar la prueba práctica.','Algunas personas aprueban la prueba práctica y no obtienen la licencia.','La prueba práctica es difícil.'],1,`El reglamento dice que aprobar la prueba es necesario para tener licencia. Solo lo incumple alguien con licencia y sin prueba aprobada.`);
+add('X','G',`Solo los estudiantes que entregaron el proyecto pueden presentar el examen final. Karla presentó el examen final.<br><br>¿Cuál de las siguientes afirmaciones es, con certeza, verdadera?`,
+['Karla aprobó el examen final.','Todos los que entregaron el proyecto presentaron el examen.','Karla obtuvo una buena nota en el proyecto.','Karla entregó el proyecto.'],3,`Entregar el proyecto es requisito para presentar el examen; si Karla lo presentó, cumplió el requisito.`);
+add('X','G',`Se comparan las alturas de cinco edificios P, Q, R, S y T:<br>• P es más alto que Q.<br>• R es más bajo que Q.<br>• S es más alto que P.<br>• T es más alto que R, pero más bajo que Q.<br><br>Si se ordenan del más alto al más bajo, ¿cuál edificio queda en el lugar del medio?`,
+['P','T','R','Q'],3,`El orden es S, P, Q, T, R. El tercero es Q.`);
+add('X','G',`Considere las siguientes premisas:<br>Premisa 1: Ningún reptil tiene plumas.<br>Premisa 2: Todas las aves tienen plumas.<br><br>De las premisas anteriores se sigue que`,
+['ningún ave es reptil.','algunos reptiles son aves.','todos los animales con plumas son aves.','algunas aves no tienen plumas.'],0,`Un ave tiene plumas y ningún reptil las tiene; entonces ningún ave puede ser reptil.`);
+add('X','G',`Considere las siguientes premisas:<br>Premisa 1: Si un número termina en 0, entonces es divisible por 5.<br>Premisa 2: El número N no es divisible por 5.<br><br>De las premisas anteriores se sigue que`,
+['N termina en 5.','N es impar.','N no termina en 0.','N termina en 0.'],2,`Si N terminara en 0, sería divisible por 5. Como no lo es, no termina en 0. N podría ser par, como 12.`);
+add('X','G',`Se pesan tres cajas A, B y C. La caja A pesa más que la caja B. La caja C pesa menos que la caja A.<br><br>Considere las siguientes proposiciones:<br>I. C pesa más que B.<br>II. A es la caja más pesada.<br>III. B es la caja más liviana.<br><br>De las anteriores, ¿cuáles se cumplen con certeza?`,
+['Solo la II.','Solo la I.','Solo la II y la III.','Solo la I y la III.'],0,`A pesa más que B y más que C. Entre B y C no hay información para saber cuál pesa menos.`);
+add('X','G',`En una gaveta hay 10 medias negras y 10 medias blancas revueltas. Una persona saca medias sin mirar.<br><br>¿Cuántas medias debe sacar, como mínimo, para tener con certeza dos del mismo color?`,
+['2','3','11','12'],1,`Con dos podrían salir una negra y una blanca; la tercera repite alguno de los dos colores.`);
+add('X','G',`En una bolsa hay 6 bolas rojas, 5 verdes y 4 azules. Una persona saca bolas sin mirar.<br><br>¿Cuántas bolas debe sacar, como mínimo, para tener con certeza una bola de cada color?`,
+['3','10','12','15'],2,`En el peor caso salen primero todas las rojas y todas las verdes (11 bolas); la número 12 tiene que ser azul.`);
+add('X','G',`En una fila de luces, la luz 1 es roja, la 2 es verde, la 3 es azul, la 4 es roja, la 5 es verde, la 6 es azul, y así sucesivamente.<br><br>¿De qué color es la luz 100?`,
+['Roja.','Verde.','Azul.','No se puede saber.'],0,`El ciclo se repite cada 3 luces. 100 = 3 · 33 + 1, así que la luz 100 tiene el color de la luz 1.`);
+add('X','G',`¿Cuál de las siguientes opciones expresa lo contrario de la afirmación “Todos los estudiantes del grupo aprobaron”?`,
+['Ningún estudiante del grupo aprobó.','Algunos estudiantes del grupo aprobaron.','Todos los estudiantes del grupo reprobaron.','Uno o más estudiantes del grupo no aprobaron.'],3,`Para que “todos aprobaron” sea falso basta con un estudiante que no haya aprobado.`);
+add('X','G',`Cuatro amigas se sientan en una banca con cuatro puestos numerados del 1 al 4, de izquierda a derecha. Se sabe que:<br>• Uma está en el puesto 1.<br>• Rosa no está en ningún extremo.<br>• Tania está inmediatamente a la izquierda de Vera.<br><br>¿Quién está en el puesto 3?`,
+['Rosa.','Vera.','Tania.','Uma.'],2,`Rosa debe ir en el puesto 2 o 3. Tania y Vera van juntas; si ocuparan 2 y 3, Rosa quedaría en un extremo. Entonces Rosa va en 2, Tania en 3 y Vera en 4.`);
+add('X','G',`En un aula hay 25 estudiantes.<br><br>¿Cuál de las siguientes afirmaciones es, con certeza, verdadera?`,
+['Hay un estudiante que cumple años en cada mes.','Dos o más estudiantes cumplen años el mismo día.','Ningún estudiante cumple años en febrero.','Tres o más estudiantes cumplen años en un mismo mes.'],3,`Si en cada mes cumplieran años a lo sumo 2 estudiantes, habría como máximo 24. Con 25, algún mes tiene 3 o más.`);
+add('X','G',`Considere las siguientes premisas:<br>Premisa 1: Todos los ingenieros de la empresa hablan inglés.<br>Premisa 2: Algunos empleados de la empresa no hablan inglés.<br><br>De las premisas anteriores se sigue que`,
+['algunos empleados de la empresa no son ingenieros.','ningún empleado de la empresa es ingeniero.','todos los que hablan inglés son ingenieros.','algunos ingenieros no hablan inglés.'],0,`Los empleados que no hablan inglés no pueden ser ingenieros, porque todos los ingenieros lo hablan.`);
+add('X','G',`Una contraseña de tres letras usa las letras X, Y y Z, una vez cada una. Se sabe que la X no va en el primer lugar y que la Z va inmediatamente después de la Y.<br><br>¿Cuál es la contraseña?`,
+['XYZ','YZX','ZXY','YXZ'],1,`El bloque YZ puede ir en los lugares 1-2 o 2-3. En 2-3 la X quedaría primera, lo cual no se permite. Queda YZX.`);
+
+/* ---------- Matemática (PAA y TEC) ---------- */
+add('X','M',`Un vuelo sale de la ciudad A el viernes a las 10:00 p. m., hora de A, y llega a la ciudad B el sábado a las 7:00 a. m., hora de B. La hora en B está 3 horas atrasada respecto a la de A.<br><br>¿Cuántas horas duró el vuelo?`,
+['6','9','12','15'],2,`Las 7:00 a. m. en B son las 10:00 a. m. en A. Del viernes 10:00 p. m. al sábado 10:00 a. m. hay 12 horas.`);
+add('X','M',`Un tanque tiene una fuga por la que cada hora pierde la tercera parte del agua que tenía al iniciar esa hora. En cierto momento el tanque tenía 810 litros.<br><br>¿Cuánta agua tendrá 3 horas después?`,
+['240 litros','270 litros','360 litros','540 litros'],0,`Cada hora quedan dos tercios: 810 → 540 → 360 → 240.`);
+add('X','M',`Un colegio reparte 90 estudiantes en equipos de 9 personas. En cada equipo hay más mujeres que hombres.<br><br>¿Cuál de las siguientes opciones es imposible que suceda?`,
+['Que haya 40 hombres.','Que haya 50 mujeres.','Que haya más de 45 hombres.','Que haya más de 70 mujeres.'],2,`Son 10 equipos y en cada uno hay 5 o más mujeres y 4 o menos hombres. El máximo de hombres es 40.`);
+add('X','M',`Sara y Tomás suben la misma escalera de 60 gradas. Sara sube 3 gradas con cada paso y tarda 2 segundos por paso. Tomás sube 2 gradas con cada paso y tarda 1 segundo por paso. Los dos empiezan al mismo tiempo.<br><br>¿Qué sucede, con certeza?`,
+['Sara llega 10 segundos antes que Tomás.','Los dos llegan al mismo tiempo.','Tomás llega 5 segundos antes que Sara.','Tomás llega 10 segundos antes que Sara.'],3,`Sara: 20 pasos · 2 s = 40 s. Tomás: 30 pasos · 1 s = 30 s.`);
+add('X','M',`A un taller asistieron 120 personas: 70 eran estudiantes y el resto, docentes. De los asistentes, 54 usaban anteojos, y dos quintas partes de los docentes usaban anteojos.<br><br>¿Cuántos estudiantes no usaban anteojos?`,
+['34','36','50','66'],1,`Docentes: 50, de los cuales 20 usan anteojos. Estudiantes con anteojos: 54 − 20 = 34. Sin anteojos: 70 − 34 = 36.`);
+add('X','M',`Para cubrir un piso se necesitan 240 baldosas pequeñas. Se decide usar baldosas grandes: cada 3 baldosas grandes cubren lo mismo que 8 pequeñas.<br><br>¿Cuántas baldosas grandes se necesitan?`,
+['30','64','80','90'],3,`240 ÷ 8 = 30 grupos de pequeñas; cada grupo se cambia por 3 grandes: 30 · 3 = 90.`);
+add('X','M',`Analice la siguiente secuencia y encuentre la ley que se da en ella:<p class="mth">2, 5, 10, 17, 26, …</p>¿Cuál es el número correspondiente a la posición 12?`,
+['122','145','146','170'],1,`Cada término es el cuadrado de su posición más 1: 12² + 1 = 145.`);
+add('X','M',`El peso de 3 melones es igual al peso de 4 piñas, y el peso de 2 piñas es igual al de 5 naranjas.<br><br>¿Cuántas naranjas se necesitan para tener el peso de 6 melones?`,
+['10','15','16','20'],3,`6 melones = 8 piñas, y 8 piñas = 4 · 5 = 20 naranjas.`);
+add('X','M',`Dos tanques iguales están vacíos. La llave A vierte 20 litros por minuto en el primer tanque y se abre a las 8:00 a. m. La llave B vierte 30 litros por minuto en el segundo tanque y se abre a las 8:30 a. m.<br><br>¿Qué hora era cuando ambos tanques tenían la misma cantidad de agua?`,
+['9:00 a. m.','9:30 a. m.','10:00 a. m.','10:30 a. m.'],1,`A las 8:30 el primero lleva 600 litros de ventaja. B recupera 10 litros por minuto: 60 minutos después, a las 9:30.`);
+add('X','M',`Analice la siguiente secuencia y encuentre la ley que se da en ella:<p class="mth">T<sub>1</sub> = 2<br>T<sub>2</sub> = T<sub>1</sub> + 2<br>T<sub>3</sub> = T<sub>2</sub> + 3<br>T<sub>4</sub> = T<sub>3</sub> + 4<br>T<sub>5</sub> = T<sub>4</sub> + 5</p>¿Cuál de las siguientes opciones representa una expresión equivalente a T<sub>15</sub>?`,
+['T<sub>12</sub> + 40','T<sub>13</sub> + 28','T<sub>13</sub> + 29','T<sub>14</sub> + 14'],2,`T<sub>15</sub> = T<sub>14</sub> + 15 = (T<sub>13</sub> + 14) + 15 = T<sub>13</sub> + 29.`);
+add('X','M',`Considere la siguiente secuencia de igualdades:<p class="mth">N<sub>1</sub> = 3 &nbsp; N<sub>2</sub> = 3 &nbsp; N<sub>3</sub> = 6 &nbsp; N<sub>4</sub> = 6 &nbsp; N<sub>5</sub> = 9 &nbsp; N<sub>6</sub> = 9</p>Si se continúa la secuencia, ¿a cuánto equivale N<sub>85</sub>?`,
+['126','129','132','255'],1,`Los términos van en parejas. La posición 85 pertenece a la pareja 43 (posiciones 85 y 86), y su valor es 3 · 43 = 129.`);
+add('X','M',`En una galaxia hay dos planetas, X y Y. Cada año del planeta X dura 90 días terrestres y cada año del planeta Y dura 150 días terrestres.<br><br>¿Qué cantidad de años de X tiene un habitante que tiene 12 años de Y?`,
+['7','12','18','20'],3,`12 años de Y son 12 · 150 = 1800 días terrestres. 1800 ÷ 90 = 20 años de X.`);
+add('X','M',`Un entrenador tenía 20 000 colones para comprar balones y conos. Compró 3 balones para cada uno de sus 5 equipos. La cantidad de conos que compró fue el doble de la cantidad de balones. Cada balón le costó 900 colones y cada cono, 150 colones.<br><br>¿Cuál expresión permite obtener la cantidad de colones que le sobraron?`,
+['20 000 − 15 · 900 − 30 · 150','20 000 − 30 · 900 − 15 · 150','20 000 − 15 · 900 + 30 · 150','20 000 − 8 · 900 − 16 · 150'],0,`Balones: 3 · 5 = 15, a 900 cada uno. Conos: 30, a 150 cada uno. Ambos gastos se restan del total.`);
+add('X','M',`Una calculadora dañada triplica cada número que se ingresa antes de hacer la operación. Por ejemplo, al ingresar 2 + 5 calcula 6 + 15.<br><br>¿En cuál operación el resultado de la calculadora dañada es siempre 9 veces el resultado correcto?`,
+['En la suma.','En la resta.','En la multiplicación.','En la división.'],2,`(3a) · (3b) = 9ab. En la suma y la resta el resultado se triplica, y en la división queda igual.`);
+add('X','M',`En el país M una bicicleta cuesta 4000 soles. En el país N la misma bicicleta cuesta 9000 lunas. Se sabe que 3 lunas equivalen a 1 sol.<br><br>¿Cuánto dinero ahorra una persona del país M si compra la bicicleta en el país N?`,
+['500 soles','1000 soles','3000 soles','5000 soles'],1,`9000 lunas ÷ 3 = 3000 soles. Ahorro: 4000 − 3000 = 1000 soles.`);
+add('X','M',`Un club recibe cada mes dos grupos de socios nuevos: uno de 9 personas y otro de 5 personas. Los socios nuevos son distintos cada mes.<br><br>¿Cuál es el mínimo número de meses que debe transcurrir para que la cantidad total de socios nuevos sea divisible por 4?`,
+['2','3','4','7'],0,`Cada mes entran 14 socios. 14 no es divisible por 4, pero 28 sí: bastan 2 meses.`);
+add('X','M',`Camila reparte todo el contenido de una jarra llena de jugo en 3 vasos.<br><br>¿Cuál de las siguientes opciones es imposible que suceda?`,
+['Los tres vasos reciben la misma cantidad de jugo.','Un vaso recibe la mitad del jugo, otro la tercera parte y otro la sexta parte.','Dos vasos reciben la cuarta parte del jugo cada uno y el otro recibe la mitad.','Un vaso recibe la mitad del jugo, otro la cuarta parte y otro la quinta parte.'],3,`1/2 + 1/4 + 1/5 = 19/20: no suma la jarra completa. Las otras tres reparticiones suman exactamente 1.`);
+add('X','M',`Una hormiga camina 20 cm por minuto sobre una regla larga, sin detenerse. Parte de la marca P: primero camina 60 cm hacia la derecha, luego 100 cm hacia la izquierda y después 80 cm hacia la derecha.<br><br>¿Dónde está la hormiga 10 minutos después de haber salido?`,
+['40 cm a la izquierda de P.','En la marca P.','20 cm a la derecha de P.','40 cm a la derecha de P.'],1,`En 10 minutos recorre 200 cm: 60 a la derecha, 100 a la izquierda y 40 del último tramo. 60 − 100 + 40 = 0.`);
+add('X','M',`Un bus sale de la terminal con cierta cantidad de pasajeros. En la primera parada baja la tercera parte de los pasajeros y suben 4. En la segunda parada baja la mitad de los pasajeros que iban en ese momento y suben 3, con lo cual quedan 20 pasajeros.<br><br>¿Cuántos pasajeros salieron de la terminal?`,
+['30','36','42','45'],3,`Hacia atrás: antes de subir 3 había 17, que era la mitad de 34. Antes de subir 4 había 30, que eran dos tercios de 45.`);
+add('X','M',`Un medicamento se aplica cada 45 días. La primera dosis se aplicó un lunes.<br><br>¿Qué día de la semana se aplica la cuarta dosis?`,
+['Lunes.','Martes.','Miércoles.','Jueves.'],2,`La cuarta dosis llega 3 · 45 = 135 días después. 135 = 7 · 19 + 2: dos días después del lunes.`);
+add('X','M',`La nota final de un curso es exactamente el promedio de dos exámenes. Diana obtuvo en el segundo examen 12 puntos más que en el primero.<br><br>¿Cuál de las siguientes opciones se deduce, con certeza?`,
+['La nota final es 6 puntos mayor que la del primer examen.','La nota final es mayor que la del segundo examen.','La nota final es 12 puntos mayor que la del primer examen.','La nota final es igual a la del primer examen.'],0,`El promedio de x y x + 12 es x + 6.`);
+add('X','M',`Para numerar las páginas de un folleto, empezando con 1 en la primera página, se usaron 252 dígitos en total.<br><br>¿Cuántas páginas tiene el folleto?`,
+['120','126','189','252'],0,`Páginas 1 a 9: 9 dígitos. Páginas 10 a 99: 180 dígitos. Quedan 63 dígitos, que alcanzan para 21 páginas de tres cifras: 99 + 21 = 120.`);
+add('X','M',`Un reloj digital marca las 6:38.<br><br>¿Cuántos minutos faltan para la primera vez que la suma de los dígitos de la hora y los minutos sea 20?`,
+['11','20','21','30'],2,`Con la hora 6, los minutos deben sumar 14: eso ocurre por primera vez a las 6:59, 21 minutos después.`);
+add('X','M',`Se llama SD de un número entero positivo a la suma de sus dígitos; por ejemplo, SD(47) = 4 + 7 = 11. Considere que x es un número de dos dígitos y que z es un número de tres dígitos.<br><br>¿Cuál de las siguientes afirmaciones es imposible?`,
+['SD(x) = 19','SD(x) = 18','SD(z) = 1','SD(x) = SD(z)'],0,`Con dos dígitos la suma máxima es 9 + 9 = 18. Las demás son posibles: 99, 100, y por ejemplo x = 11 con z = 110.`);
+add('X','M',`En una campaña de lectura, por cada libro leído un estudiante gana 150 puntos, y por cada 400 puntos recibe una insignia. Al final del año, Pablo recibió exactamente 6 insignias y no le sobraron puntos.<br><br>¿Cuántos libros leyó Pablo?`,
+['16','18','24','32'],0,`6 insignias son 2400 puntos. 2400 ÷ 150 = 16 libros.`);
+add('X','M',`Irene no recuerda los dos últimos dígitos de un código. Lo que recuerda es que esos dos dígitos suman 9 y que el primero de ellos es mayor que el segundo.<br><br>¿Cuántas posibilidades tiene Irene para completar el código?`,
+['4','5','9','10'],1,`Las parejas son 9-0, 8-1, 7-2, 6-3 y 5-4.`);
+add('X','M',`Considere que a y b son números enteros positivos y que K = a · b + a.<br><br>¿Cuál de las siguientes afirmaciones, con certeza, es verdadera?`,
+['Si a es impar, entonces K es impar.','Si b es impar, entonces K es par.','Si a y b son pares, entonces K es impar.','Si b es par, entonces K es par.'],1,`K = a · (b + 1). Si b es impar, b + 1 es par y el producto también.`);
+add('X','M',`Un perro persigue a un conejo que está 12 metros adelante. El perro avanza 5 metros cada segundo y el conejo, 3 metros cada segundo. Ambos corren en la misma dirección.<br><br>¿Cuál es la distancia entre el perro y el conejo después de 4 segundos?`,
+['0 metros','2 metros','3 metros','4 metros'],3,`El perro acorta 2 metros cada segundo: en 4 segundos acorta 8. Quedan 12 − 8 = 4 metros.`);
+
+</script>
+<script>
+(function(){
+'use strict';
+var LIMIT = 146000;            // 2 min 26 s por ítem (1 h 50 min ÷ 45)
+var TOTAL = 110 * 60000;       // 1 h 50 min
+var AREA = { L: 'Lectura', G: 'Lógica', M: 'Matemática' };
+var UNI = {
+  ucr: { name: 'UCR', full: 'Universidad de Costa Rica', bank: 'P', mix: { L: 21, G: 12, M: 12 }, blurb: 'PAA: razonamiento en contextos verbales y matemáticos.' },
+  una: { name: 'UNA', full: 'Universidad Nacional', bank: 'P', mix: { L: 21, G: 12, M: 12 }, blurb: 'Aplica la misma PAA que la UCR.' },
+  tec: { name: 'TEC', full: 'Instituto Tecnológico de Costa Rica', bank: 'T', mix: { L: 17, G: 14, M: 14 }, blurb: 'PAA del TEC: razonamiento matemático y verbal.' }
+};
+var byId = {}; B.forEach(function (it) { byId[it.id] = it; });
+var app = document.getElementById('app');
+var ADMIN = String(CONFIG.admin || '').trim().toLowerCase(), SYNC = String(CONFIG.sync || '').trim();
+var S = { view: 'login', user: null, uni: 'ucr', mode: 'sim', area: 'all', exam: null, filter: 'all', ask: false };
+var A = { rows: [], src: 'local', msg: '', sel: null };   // panel de administrador
+var loginErr = '', syncing = false;
+var enterAt = Date.now(), ticker = null;
+
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}return a;}
+function fmt(ms){var s=Math.floor(ms/1000),m=Math.floor(s/60);s=s%60;return m+':'+(s<10?'0':'')+s;}
+function fmtLong(ms){var s=Math.floor(ms/1000),h=Math.floor(s/3600),m=Math.floor(s%3600/60);s=s%60;return h+':'+(m<10?'0':'')+m+':'+(s<10?'0':'')+s;}
+function pool(uni,a){var k=UNI[uni].bank;return B.filter(function(it){return (it.u===k||it.u==='X')&&it.a===a;});}
+function lsGet(k,d){try{var v=localStorage.getItem(k);return v==null?d:JSON.parse(v);}catch(e){return d;}}
+function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
+function recs(){var a=lsGet('paa-registros',[]);return Array.isArray(a)?a:[];}
+function saveRecs(a){lsSet('paa-registros',a.slice(-500));}
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,8);}
+function isAdmin(){return !!S.user&&S.user.email===ADMIN;}
+function pct(r){return Math.round(100*r.ok/r.n);}
+function when(d){var t=new Date(d);return isNaN(t)?'':t.toLocaleString('es-CR',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});}
+function plain(h){return String(h).replace(/<[^>]+>/g,' ').replace(/&nbsp;/g,' ').replace(/\s+/g,' ').trim();}
+/* Envía al registro central los intentos que aún no se han enviado. */
+function sync(){
+  if(!SYNC||syncing)return;
+  var p=recs().filter(function(r){return !r.s;});if(!p.length)return;
+  syncing=true;
+  (function next(i){
+    if(i>=p.length){syncing=false;return;}
+    fetch(SYNC,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'save',rec:p[i]})})
+      .then(function(r){return r.json();})
+      .then(function(j){if(j&&j.ok){var all=recs();all.forEach(function(r){if(r.id===p[i].id)r.s=1;});saveRecs(all);}next(i+1);})
+      .catch(function(){syncing=false;});
+  })(0);
+}
+function loadAdmin(){
+  A.rows=recs();A.msg='';
+  if(!SYNC){A.src='local';render();return;}
+  var key=lsGet('paa-clave','');
+  if(!key){A.src='needkey';render();return;}
+  A.src='loading';render();
+  fetch(SYNC+'?action=list&key='+encodeURIComponent(key)).then(function(r){return r.json();}).then(function(j){
+    if(!j||!j.ok){A.src='needkey';A.msg='La clave no coincide con la del registro central.';lsSet('paa-clave','');}
+    else{var seen={};A.rows=(j.rows||[]).concat(recs()).filter(function(r){if(!r||!r.id||seen[r.id])return false;seen[r.id]=1;return true;});A.src='central';}
+    render();
+  }).catch(function(){A.src='error';render();});
+}
+function csv(){
+  var q=function(v){return '"'+String(v==null?'':v).replace(/"/g,'""')+'"';};
+  var out=[['fecha','correo','nombre','universidad','modo','correctas','total','porcentaje','segundos','items_en_rojo','sin_contestar'].join(',')];
+  A.rows.forEach(function(r){out.push([q(r.d),q(r.email),q(r.name),q(r.uni),q(r.mode==='sim'?'simulacro':'practica'),r.ok,r.n,pct(r),Math.round(r.ms/1000),r.late,r.blank].join(','));});
+  try{var a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\ufeff'+out.join('\r\n')],{type:'text/csv'}));a.download='registros-simulacro.csv';document.body.appendChild(a);a.click();a.remove();}catch(e){}
+}
+
+function build(){
+  var ids=[];
+  if(S.mode==='sim'){
+    var mix=UNI[S.uni].mix;
+    ['L','G','M'].forEach(function(a){ids=ids.concat(shuffle(pool(S.uni,a)).slice(0,mix[a]).map(function(it){return it.id;}));});
+  }else{
+    var areas=S.area==='all'?['L','G','M']:[S.area], per=S.area==='all'?5:15;
+    areas.forEach(function(a){ids=ids.concat(shuffle(pool(S.uni,a)).slice(0,per).map(function(it){return it.id;}));});
+  }
+  ids=shuffle(ids);
+  S.exam={uni:S.uni,mode:S.mode,ids:ids,ans:ids.map(function(){return -1;}),times:ids.map(function(){return 0;}),i:0,done:false};
+  S.view='exam';S.ask=false;enterAt=Date.now();
+}
+function frozen(i){var x=S.exam;return x.mode==='prac'&&x.ans[i]>=0;}
+function commit(){var x=S.exam;if(!x||x.done)return;if(!frozen(x.i))x.times[x.i]+=Date.now()-enterAt;enterAt=Date.now();}
+function curTime(){var x=S.exam;return x.times[x.i]+(frozen(x.i)?0:Date.now()-enterAt);}
+function totTime(){var x=S.exam,t=0;for(var i=0;i<x.times.length;i++)t+=x.times[i];return t+(frozen(x.i)?0:Date.now()-enterAt);}
+function goTo(i){var x=S.exam;if(i<0||i>=x.ids.length)return;commit();x.i=i;enterAt=Date.now();render();window.scrollTo(0,0);}
+function finish(){
+  commit();var x=S.exam;x.done=true;S.view='result';S.ask=false;S.filter='all';
+  var r=summary();
+  var all=recs();
+  all.push({id:uid(),email:S.user.email,name:S.user.name||'',d:new Date().toISOString(),uni:x.uni,mode:x.mode,ok:r.ok,n:x.ids.length,ms:r.ms,late:r.late,blank:r.blank,areas:r.area,
+    items:x.ids.map(function(id,i){return [id,x.ans[i],Math.round(x.times[i]/1000)];})});
+  saveRecs(all);sync();
+  render();window.scrollTo(0,0);
+}
+function summary(){
+  var x=S.exam,r={ok:0,blank:0,ms:0,late:0,area:{L:[0,0,0],G:[0,0,0],M:[0,0,0]}};
+  x.ids.forEach(function(id,i){var it=byId[id],a=r.area[it.a];a[1]++;a[2]+=x.times[i];r.ms+=x.times[i];
+    if(x.ans[i]===it.k){r.ok++;a[0]++;}if(x.ans[i]<0)r.blank++;if(x.times[i]>LIMIT)r.late++;});
+  return r;
+}
+
+/* ---------- vistas ---------- */
+function vHome(){
+  var h=recs().filter(function(r){return r.email===S.user.email;}).reverse().slice(0,8),u=UNI[S.uni];
+  var unis=Object.keys(UNI).map(function(k){var v=UNI[k];return '<button class="pick" data-act="uni" data-v="'+k+'" aria-pressed="'+(S.uni===k)+'"><strong>'+v.name+'</strong><span>'+v.full+'. '+v.blurb+'</span></button>';}).join('');
+  var mix=u.mix;
+  var chips=[['all','Las tres áreas'],['L','Lectura'],['G','Lógica'],['M','Matemática']].map(function(c){return '<button class="chip" data-act="area" data-v="'+c[0]+'" aria-pressed="'+(S.area===c[0])+'">'+c[1]+'</button>';}).join('');
+  var hist=h.length?h.map(function(r){var d=new Date(r.d);return '<li><span>'+UNI[r.uni].name+' · '+(r.mode==='sim'?'Simulacro':'Práctica')+' · '+d.toLocaleDateString('es-CR',{day:'numeric',month:'short'})+'</span><span class="num"><b>'+r.ok+'/'+r.n+'</b> · '+fmtLong(r.ms)+'</span></li>';}).join(''):'<li class="muted">Todavía no tiene intentos guardados en este dispositivo.</li>';
+  return userbar()+'<header class="mast"><div><div class="eyebrow">Prueba de Aptitud Académica · Costa Rica</div><h1>Simulacro de admisión</h1></div><p>Practique con ítems de lectura, lógica y matemática, con el ritmo de tiempo del examen real.</p></header>'+
+  '<div class="home"><main>'+
+    '<section class="step"><h2><b>1</b>Elija la universidad</h2><div class="unis">'+unis+'</div></section>'+
+    '<section class="step"><h2><b>2</b>Elija cómo practicar</h2><div class="modes">'+
+      '<button class="pick" data-act="mode" data-v="sim" aria-pressed="'+(S.mode==='sim')+'"><em>Simulacro completo</em><span>45 ítems: '+mix.L+' de lectura, '+mix.G+' de lógica y '+mix.M+' de matemática. Las respuestas se revisan al final.</span></button>'+
+      '<button class="pick" data-act="mode" data-v="prac" aria-pressed="'+(S.mode==='prac')+'"><em>Práctica corta</em><span>15 ítems. Al marcar una opción se muestra la respuesta correcta y la explicación.</span></button>'+
+    '</div>'+(S.mode==='prac'?'<div class="chips" role="group" aria-label="Área de la práctica corta">'+chips+'</div>':'')+'</section>'+
+    '<section class="step"><h2><b>3</b>Empiece</h2><div><button class="go" data-act="start">Empezar '+(S.mode==='sim'?'el simulacro':'la práctica')+' de la '+u.name+' →</button></div><p class="muted" style="margin:0;font-size:.9rem">El cronómetro arranca solo al abrir cada ítem. Tenga a mano lápiz y papel; no se usa calculadora.</p></section>'+
+  '</main><aside>'+
+    '<div class="panel"><h3>Cómo funciona el cronómetro</h3><div class="clock-demo">'+
+      '<div><span class="timer">1:48</span><span>Verde durante los primeros 2 min 26 s de cada ítem. Es el ritmo para terminar 45 ítems en 1 h 50 min.</span></div>'+
+      '<div><span class="timer over">2:53</span><span>Rojo cuando se pasa de ese tiempo. Sigue contando hasta que usted pase al siguiente ítem.</span></div>'+
+    '</div><p class="key">El tiempo de cada ítem queda registrado y aparece en los resultados.</p></div>'+
+    '<div class="panel"><h3>Mis últimos intentos</h3><ul class="hist">'+hist+'</ul></div>'+
+  '</aside></div>'+
+  '<p class="foot">Banco: '+B.length+' ítems. Los ítems del TEC provienen del <i>Cuaderno de ejercicios para la prueba de aptitud académica del TEC</i>, 2.ª edición (Acuña-Chacón, Agüero-Calvo, Blanco-Leitón y Godínez-Rojas, 2023), con licencia CC BY-NC-SA 4.0; se usan sin fines comerciales y con explicaciones resumidas. Los ítems de la PAA UCR-UNA y los adicionales son de elaboración propia, con los mismos tipos de razonamiento de la práctica oficial. Material de estudio no oficial.</p>';
+}
+
+function userbar(){
+  return '<div class="userbar"><span>Sesión: <b>'+esc(S.user.name||S.user.email)+'</b>'+(S.user.name?' · '+esc(S.user.email):'')+'</span>'+
+    (isAdmin()?'<button class="link" data-act="admin">Panel de registros</button>':'')+'<button class="link" data-act="logout">Salir</button></div>';
+}
+function vLogin(){
+  return '<header class="mast"><div><div class="eyebrow">Prueba de Aptitud Académica · Costa Rica</div><h1>Simulacro de admisión</h1></div><p>Práctica para el examen de admisión de la UCR, la UNA y el TEC.</p></header>'+
+  '<form class="login panel" id="login" novalidate><h2 style="font-size:1.3rem">Ingrese con su correo</h2>'+
+    '<label class="field" for="f-email">Correo electrónico<input id="f-email" type="email" inputmode="email" autocomplete="email" autocapitalize="off" placeholder="nombre@correo.com"></label>'+
+    '<label class="field" for="f-name">Nombre <small>(opcional, para identificar sus intentos)</small><input id="f-name" type="text" autocomplete="name"></label>'+
+    (loginErr?'<p class="err">'+loginErr+'</p>':'')+
+    '<button class="go" type="submit">Entrar →</button>'+
+    '<p class="muted" style="margin:0;font-size:.88rem">No se necesita contraseña. Sus intentos quedan registrados con este correo para dar seguimiento a su avance.</p></form>';
+}
+function people(){
+  var m={},out=[];
+  A.rows.forEach(function(r){var k=String(r.email||'').toLowerCase();if(!k)return;(m[k]=m[k]||[]).push(r);});
+  Object.keys(m).forEach(function(k){var a=m[k].sort(function(x,y){return x.d<y.d?-1:1;}),sum=0,best=0,ms=0,n=0,name='';
+    a.forEach(function(r){var p=pct(r);sum+=p;if(p>best)best=p;ms+=r.ms;n+=r.n;if(r.name)name=r.name;});
+    out.push({email:k,name:name,list:a,avg:Math.round(sum/a.length),best:best,per:ms/n,last:a[a.length-1]});});
+  return out.sort(function(x,y){return x.last.d<y.last.d?1:-1;});
+}
+function adminStatus(){
+  if(A.src==='central')return '<div class="status">Registro central conectado. Se muestran los intentos de todos los dispositivos.</div>';
+  if(A.src==='loading')return '<div class="status">Consultando el registro central…</div>';
+  if(A.src==='error')return '<div class="status warn">No se pudo consultar el registro central. Revise la conexión a internet y pulse Actualizar. Mientras tanto se muestran los intentos de este dispositivo.</div>';
+  if(A.src==='needkey')return '<div class="status warn"><span>'+(A.msg||'Escriba la clave de administrador del registro central.')+'</span><input id="f-key" type="password" aria-label="Clave de administrador" placeholder="Clave de administrador"><button class="ghost" data-act="key">Conectar</button></div>';
+  return '<div class="status warn">Registro local: solo aparecen los intentos hechos en este dispositivo. Para ver los de otros dispositivos hay que conectar el registro central (vea el archivo de instrucciones).</div>';
+}
+function spark(list){
+  var W=560,H=150,n=list.length,pts=list.map(function(r,i){return [40+(n>1?i*(W-60)/(n-1):(W-60)/2),20+(100-pct(r))*1.1];});
+  var grid=[0,50,100].map(function(v){var y=20+(100-v)*1.1;return '<line x1="40" x2="'+(W-10)+'" y1="'+y+'" y2="'+y+'" stroke="var(--line)"/><text x="34" y="'+(y+4)+'" text-anchor="end" font-size="11" fill="var(--muted)">'+v+'</text>';}).join('');
+  var dots=pts.map(function(p,i){return '<circle cx="'+p[0]+'" cy="'+p[1]+'" r="'+(i===n-1?6:3.5)+'" fill="var(--blue)"/>';}).join('');
+  var last=pts[n-1];
+  return '<svg class="spark" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Porcentaje de aciertos en cada intento">'+grid+
+    '<polyline fill="none" stroke="var(--blue)" stroke-width="2.5" points="'+pts.map(function(p){return p[0]+','+p[1];}).join(' ')+'"/>'+dots+
+    '<text x="'+Math.min(last[0],W-30)+'" y="'+(last[1]-12)+'" text-anchor="middle" font-size="13" font-weight="700" fill="var(--ink)">'+pct(list[n-1])+' %</text></svg>';
+}
+function vPerson(p){
+  var ar={L:[0,0,0],G:[0,0,0],M:[0,0,0]};
+  p.list.forEach(function(r){if(r.areas)['L','G','M'].forEach(function(a){var v=r.areas[a]||[0,0,0];ar[a][0]+=v[0];ar[a][1]+=v[1];ar[a][2]+=v[2];});});
+  var areas=['L','G','M'].filter(function(a){return ar[a][1];}).map(function(a){var v=ar[a];
+    return '<div class="area"><b>'+AREA[a]+'</b><div class="track"><i style="width:'+(100*v[0]/v[1])+'%"></i></div><span class="num">'+v[0]+' de '+v[1]+' · '+fmt(v[2]/v[1])+' por ítem</span></div>';}).join('');
+  var tries=p.list.slice().reverse().map(function(r){
+    var miss=(r.items||[]).filter(function(t){var it=byId[t[0]];return it&&t[1]!==it.k;}).map(function(t){var it=byId[t[0]],tx=plain(it.q);
+      return '<li><b>'+AREA[it.a]+'.</b> '+esc(tx.length>130?tx.slice(0,130)+'…':tx)+'<br><span class="muted">'+(t[1]<0?'Sin contestar':'Marcó '+'ABCD'[t[1]])+' · era '+'ABCD'[it.k]+' · '+fmt(t[2]*1000)+(t[2]*1000>LIMIT?' (en rojo)':'')+'</span></li>';}).join('');
+    return '<details class="rev"><summary><b>'+pct(r)+'%</b><span class="ar muted">'+UNI[r.uni].name+'</span><span>'+when(r.d)+' · '+(r.mode==='sim'?'Simulacro':'Práctica')+' · '+r.ok+' de '+r.n+' · '+r.late+' en rojo</span><span class="timer sm off">'+fmtLong(r.ms)+'</span></summary>'+
+      '<div class="body"><p class="eyebrow" style="margin:12px 0 8px">Ítems para repasar</p>'+(miss?'<ul class="miss">'+miss+'</ul>':'<p class="muted" style="margin:0">Acertó todos los ítems de este intento.</p>')+'</div></details>';
+  }).join('');
+  return '<div class="tools" style="margin-top:0"><button class="ghost" data-act="adm-back">← Todas las personas</button></div>'+
+    '<section class="score" style="padding-top:8px"><div><div class="eyebrow">Avance de</div><h2 style="font-size:1.6rem;overflow-wrap:anywhere">'+esc(p.name||p.email)+'</h2>'+(p.name?'<div class="muted" style="overflow-wrap:anywhere">'+esc(p.email)+'</div>':'')+'</div><div class="facts">'+
+      '<div class="fact"><b>'+p.list.length+'</b><span>intentos</span></div><div class="fact"><b>'+p.avg+' %</b><span>promedio de aciertos</span></div>'+
+      '<div class="fact"><b>'+p.best+' %</b><span>mejor intento</span></div><div class="fact"><b>'+fmt(p.per)+'</b><span>promedio por ítem (meta: 2:26)</span></div></div></section>'+
+    '<div class="tools"><h2>Aciertos por intento</h2></div>'+spark(p.list)+
+    '<div class="tools"><h2>Aciertos por área</h2></div><section class="areas" style="margin-top:0">'+areas+'</section>'+
+    '<div class="tools"><h2>Intentos</h2></div>'+tries;
+}
+function vAdmin(){
+  var ps=people(),sel=A.sel&&ps.filter(function(p){return p.email===A.sel;})[0];
+  var head='<div class="userbar"><span>Administrador: <b>'+esc(S.user.email)+'</b></span><button class="link" data-act="home">Hacer un simulacro</button><button class="link" data-act="logout">Salir</button></div>'+
+    '<header class="mast"><div><div class="eyebrow">Simulacro de admisión</div><h1>Panel de registros</h1></div><div class="chips"><button class="ghost" data-act="adm-refresh">Actualizar</button><button class="ghost" data-act="csv"'+(A.rows.length?'':' disabled')+'>Descargar CSV</button></div></header>'+adminStatus();
+  if(sel)return head+vPerson(sel);
+  var tot=A.rows.length,avg=tot?Math.round(A.rows.reduce(function(s,r){return s+pct(r);},0)/tot):0;
+  var rows=ps.map(function(p){return '<button class="prow" data-act="person" data-v="'+esc(p.email)+'"><span><strong>'+esc(p.name||p.email)+'</strong>'+(p.name?'<small>'+esc(p.email)+'</small>':'')+'</span>'+
+    '<span class="num"><b>Intentos: </b>'+p.list.length+'</span><span class="num"><b>Promedio: </b>'+p.avg+' %</span><span class="num"><b>Mejor: </b>'+p.best+' %</span><span><b>Último: </b>'+when(p.last.d)+'</span></button>';}).join('');
+  return head+'<section class="score" style="grid-template-columns:1fr"><div class="facts"><div class="fact"><b>'+ps.length+'</b><span>personas con intentos</span></div><div class="fact"><b>'+tot+'</b><span>intentos registrados</span></div><div class="fact"><b>'+avg+' %</b><span>promedio general de aciertos</span></div></div></section>'+
+    '<div class="tools"><h2>Personas</h2></div>'+
+    (rows?'<div class="people"><div class="prow head"><span>Persona</span><span>Intentos</span><span>Promedio</span><span>Mejor</span><span>Último intento</span></div>'+rows+'</div>':'<p class="empty">Todavía no hay intentos registrados. Aparecerán aquí cuando alguien termine un simulacro o una práctica.</p>');
+}
+
+function sheet(){
+  var x=S.exam,done=x.ans.filter(function(a){return a>=0;}).length;
+  var rows=x.ids.map(function(id,i){
+    var b='';for(var o=0;o<4;o++)b+='<i'+(x.ans[i]===o?' class="on"':'')+'></i>';
+    return '<button class="row'+(i===x.i?' cur':'')+(x.times[i]>LIMIT?' late':'')+'" data-act="jump" data-v="'+i+'" aria-label="Ir al ítem '+(i+1)+(x.ans[i]>=0?', contestado':', sin contestar')+'"><b>'+(i+1)+'</b>'+b+'</button>';
+  }).join('');
+  var open=window.matchMedia('(min-width:901px)').matches?' open':'';
+  return '<details class="sheet"'+open+'><summary>Hoja para respuestas <span>'+done+' de '+x.ids.length+' contestados</span></summary>'+
+    '<div class="rows'+(x.ids.length<=16?' short':'')+'">'+rows+'</div>'+
+    '<p class="key">Toque un número para ir a ese ítem. El número se pone rojo si el ítem pasó de 2:26.</p>'+
+    '<button class="ghost end" data-act="ask">Terminar y ver resultados</button></details>';
+}
+
+function vExam(){
+  var x=S.exam,it=byId[x.ids[x.i]],n=x.ids.length,sel=x.ans[x.i],show=x.mode==='prac'&&sel>=0;
+  var opts=it.o.map(function(t,o){
+    var c='opt';
+    if(show){if(o===it.k)c+=' right';else if(o===sel)c+=' wrong';}else if(o===sel)c+=' sel';
+    return '<button class="'+c+'" data-act="ans" data-v="'+o+'"'+(show?' disabled':'')+' aria-pressed="'+(o===sel)+'"><span class="bub">'+'ABCD'[o]+'</span><span>'+t+'</span></button>';
+  }).join('');
+  var why=show?'<div class="why'+(sel===it.k?'':' bad')+'"><b>'+(sel===it.k?'Correcto. ':'La respuesta correcta es la '+'ABCD'[it.k]+'. ')+'</b>'+it.e+'</div>':'';
+  return '<div class="bar"><div class="where"><div class="eyebrow">'+UNI[x.uni].name+' · '+(x.mode==='sim'?'Simulacro':'Práctica corta')+' · '+AREA[it.a]+'</div><strong>Ítem '+(x.i+1)+' <span class="muted" style="font-weight:500">de '+n+'</span></strong></div>'+
+    '<span class="tot" id="tot"></span><span class="timer" id="clk" role="timer" aria-label="Tiempo en este ítem">0:00</span>'+
+    '<div class="fill" id="fill"><i></i></div></div>'+
+  '<div class="exam"><main><p class="hint" id="hint" hidden>Pasó de 2:26 en este ítem. Marque su mejor opción y avance.</p>'+
+    '<article class="q"><div class="stem">'+it.q+'</div><div class="opts">'+opts+'</div>'+why+
+    (it.s==='tec'?'<p class="src">Fuente: Cuaderno de ejercicios PAA-TEC, 2.ª ed. (2023), CC BY-NC-SA 4.0.</p>':'')+'</article>'+
+    '<div class="nav"><button class="ghost" data-act="prev"'+(x.i===0?' disabled':'')+'>← Anterior</button>'+
+    (x.i<n-1?'<button class="go" data-act="next">Siguiente ítem →</button>':'<button class="go" data-act="ask">Terminar y ver resultados</button>')+'</div>'+
+  '</main>'+sheet()+'</div>'+(S.ask?dialog():'');
+}
+function dialog(){
+  var x=S.exam,blank=x.ans.filter(function(a){return a<0;}).length;
+  return '<div class="veil"><div class="dlg" role="dialog" aria-modal="true" aria-labelledby="dt"><h3 id="dt">¿Terminar ahora?</h3><p>'+
+    (blank?'Le quedan <b>'+blank+'</b> ítems sin contestar. En el examen real conviene marcar siempre una opción.':'Contestó todos los ítems.')+
+    '</p><div><button class="ghost" data-act="cancel">Seguir contestando</button><button class="go" data-act="finish">Ver resultados</button></div></div></div>';
+}
+
+function vResult(){
+  var x=S.exam,r=summary(),n=x.ids.length,pct=Math.round(100*r.ok/n);
+  var areas=['L','G','M'].filter(function(a){return r.area[a][1];}).map(function(a){var v=r.area[a];
+    return '<div class="area"><b>'+AREA[a]+'</b><div class="track"><i style="width:'+(100*v[0]/v[1])+'%"></i></div><span class="num">'+v[0]+' de '+v[1]+' · '+fmt(v[2]/v[1])+' por ítem</span></div>';}).join('');
+  var list=x.ids.map(function(id,i){
+    var it=byId[id],a=x.ans[i],ok=a===it.k,late=x.times[i]>LIMIT;
+    if(S.filter==='bad'&&ok)return '';if(S.filter==='late'&&!late)return '';
+    var opts=it.o.map(function(t,o){var c='opt';if(o===it.k)c+=' right';else if(o===a)c+=' wrong';
+      return '<div class="'+c+'"><span class="bub">'+'ABCD'[o]+'</span><span>'+t+'</span></div>';}).join('');
+    return '<details class="rev"><summary><b>'+(i+1)+'</b><span class="ar muted">'+AREA[it.a]+'</span><span>'+
+      (a<0?'<span class="tag nil">Sin contestar</span>':ok?'<span class="tag ok">Correcto · '+'ABCD'[a]+'</span>':'<span class="tag no">Marcó '+'ABCD'[a]+' · era '+'ABCD'[it.k]+'</span>')+
+      '</span><span class="timer sm'+(late?' over':'')+'">'+fmt(x.times[i])+'</span></summary>'+
+      '<div class="body"><div class="stem">'+it.q+'</div><div class="opts">'+opts+'</div><div class="why'+(ok?'':' bad')+'"><b>Explicación. </b>'+it.e+'</div></div></details>';
+  }).join('');
+  var f=[['all','Todos'],['bad','Para repasar'],['late','En rojo']].map(function(c){return '<button class="chip" data-act="filter" data-v="'+c[0]+'" aria-pressed="'+(S.filter===c[0])+'">'+c[1]+'</button>';}).join('');
+  return '<header class="mast"><div><div class="eyebrow">'+UNI[x.uni].name+' · '+(x.mode==='sim'?'Simulacro completo':'Práctica corta')+'</div><h1>Resultados</h1></div></header>'+
+  '<section class="score"><div class="big">'+r.ok+'<small> / '+n+'</small></div><div class="facts">'+
+    '<div class="fact"><b>'+pct+' %</b><span>de respuestas correctas</span></div>'+
+    '<div class="fact"><b>'+fmtLong(r.ms)+'</b><span>tiempo total'+(x.mode==='sim'?' (meta: 1:50:00)':'')+'</span></div>'+
+    '<div class="fact"><b>'+fmt(r.ms/n)+'</b><span>promedio por ítem (meta: 2:26)</span></div>'+
+    '<div class="fact"><b>'+r.late+'</b><span>ítems en rojo</span></div>'+
+    '<div class="fact"><b>'+r.blank+'</b><span>sin contestar</span></div>'+
+  '</div></section>'+
+  '<section class="areas">'+areas+'</section>'+
+  '<div class="tools"><h2>Revisión ítem por ítem</h2>'+f+'</div>'+
+  (list||'<p class="empty">No hay ítems en este filtro.</p>')+
+  '<div class="actions"><button class="go" data-act="again">Hacer otro intento →</button><button class="ghost" data-act="home">Volver al inicio</button></div>';
+}
+
+function tick(){
+  if(S.view!=='exam')return;
+  var c=document.getElementById('clk');if(!c)return;
+  var t=curTime(),late=t>LIMIT,tot=totTime(),x=S.exam;
+  c.textContent=fmt(t);c.className='timer'+(frozen(x.i)?' off':late?' over':'');
+  var f=document.getElementById('fill');f.className='fill'+(late?' over':'');f.firstChild.style.width=Math.min(100,100*t/LIMIT)+'%';
+  document.getElementById('hint').hidden=!late||frozen(x.i);
+  var e=document.getElementById('tot');
+  e.textContent='Total '+fmtLong(tot)+(x.mode==='sim'?' de 1:50:00':'');e.className='tot'+(x.mode==='sim'&&tot>TOTAL?' over':'');
+}
+function render(){
+  if(!S.user)S.view='login';
+  app.innerHTML=S.view==='login'?vLogin():S.view==='admin'?vAdmin():S.view==='exam'?vExam():S.view==='result'?vResult():vHome();
+  if(ticker){clearInterval(ticker);ticker=null;}
+  if(S.view==='exam'){tick();ticker=setInterval(tick,250);}
+}
+
+app.addEventListener('click',function(ev){
+  var b=ev.target.closest('[data-act]');if(!b||b.disabled)return;
+  var a=b.getAttribute('data-act'),v=b.getAttribute('data-v'),x=S.exam;
+  if(a==='uni'){S.uni=v;render();}
+  else if(a==='mode'){S.mode=v;render();}
+  else if(a==='area'){S.area=v;render();}
+  else if(a==='start'||a==='again'){if(a==='again'){S.uni=x.uni;S.mode=x.mode;}build();render();window.scrollTo(0,0);}
+  else if(a==='ans'){var o=+v;if(x.mode==='prac'){if(x.ans[x.i]<0){commit();x.ans[x.i]=o;}}else{x.ans[x.i]=x.ans[x.i]===o?-1:o;}render();}
+  else if(a==='next')goTo(x.i+1);
+  else if(a==='prev')goTo(x.i-1);
+  else if(a==='jump')goTo(+v);
+  else if(a==='ask'){S.ask=true;render();}
+  else if(a==='cancel'){S.ask=false;render();}
+  else if(a==='finish')finish();
+  else if(a==='filter'){S.filter=v;render();}
+  else if(a==='home'){S.view='home';S.exam=null;render();window.scrollTo(0,0);}
+  else if(a==='logout'){S.user=null;S.exam=null;S.view='login';lsSet('paa-sesion',null);render();}
+  else if(a==='admin'||a==='adm-refresh'){if(!isAdmin())return;S.view='admin';if(a==='admin')A.sel=null;loadAdmin();}
+  else if(a==='person'){A.sel=v;render();window.scrollTo(0,0);}
+  else if(a==='adm-back'){A.sel=null;render();}
+  else if(a==='csv')csv();
+  else if(a==='key'){var k=document.getElementById('f-key');if(k&&k.value.trim()){lsSet('paa-clave',k.value.trim());loadAdmin();}}
+});
+app.addEventListener('submit',function(ev){
+  ev.preventDefault();if(ev.target.id!=='login')return;
+  var em=document.getElementById('f-email').value.trim().toLowerCase(),nm=document.getElementById('f-name').value.trim().slice(0,60);
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(em)){loginErr='Escriba un correo válido, por ejemplo nombre@correo.com.';render();var f=document.getElementById('f-email');f.value=em;f.focus();return;}
+  loginErr='';S.user={email:em,name:nm};lsSet('paa-sesion',S.user);
+  if(isAdmin()){S.view='admin';A.sel=null;loadAdmin();}else{S.view='home';render();}
+  sync();
+});
+document.addEventListener('keydown',function(ev){
+  if(S.view!=='exam'||ev.ctrlKey||ev.metaKey||ev.altKey)return;
+  var x=S.exam,k=ev.key.toLowerCase();
+  if(S.ask){if(k==='escape'){S.ask=false;render();}return;}
+  var o='abcd'.indexOf(k);if(o<0)o='1234'.indexOf(k);
+  if(o>=0&&k.length===1){var btn=app.querySelectorAll('.q .opt')[o];if(btn)btn.click();}
+  else if(k==='arrowright')goTo(x.i+1);
+  else if(k==='arrowleft')goTo(x.i-1);
+});
+
+function start(saved){
+  if(saved&&saved.view){S=saved;if(S.exam&&!S.exam.ids.every(function(id){return byId[id];})){S.exam=null;S.view='home';}}
+  if(!S.user){var u=lsGet('paa-sesion',null);if(u&&u.email)S.user=u;}
+  if(!S.user)S.view='login';else if(S.view==='login'||!S.view)S.view=isAdmin()?'admin':'home';
+  enterAt=Date.now();
+  if(S.view==='admin')loadAdmin();else render();
+  sync();
+}
+window.addEventListener('online',sync);
+var hot=window.claude&&window.claude.hot;
+if(hot&&hot.snapshot)hot.snapshot(function(){if(S.exam&&!S.exam.done)commit();return S;});
+if(hot&&hot.ready)hot.ready(start);else start((hot&&hot.data)||{});
+})();
+</script>
+</body>
+</html>
