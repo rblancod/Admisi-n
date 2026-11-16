@@ -44,7 +44,7 @@ h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;line-height:1.1
 .mast h1{font-size:clamp(2rem,6vw,3.3rem);font-weight:800;font-stretch:80%;letter-spacing:-.01em}
 .mast p{margin:0;max-width:34ch;color:var(--muted);font-size:.98rem}
 .home{display:grid;gap:28px;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);margin-top:24px}
-@media (max-width:820px){.home{grid-template-columns:1fr}}
+@media (max-width:820px){.home{grid-template-columns:1fr;gap:18px}.home aside{display:contents}.home aside .book{order:-1}.home aside>.panel:not(.book){order:1;margin-top:0}}
 .step{display:grid;gap:10px;margin-bottom:26px}
 .step h2{font-size:1.12rem;font-weight:700}
 .step h2 b{display:inline-grid;place-items:center;width:1.6em;height:1.6em;border:2px solid var(--ink);border-radius:50%;margin-right:.45em;font-size:.82em}
@@ -69,7 +69,11 @@ h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;line-height:1.1
 .panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px 18px}
 .panel h3{font-size:1rem;font-weight:700;margin-bottom:10px}
 .panel + .panel{margin-top:14px}
-.panel.pdf p{margin:0 0 12px;font-size:.92rem;color:var(--muted)}
+.book{display:grid;gap:6px;text-decoration:none;color:var(--ink);border:2px solid var(--blue);background:var(--blue-soft)}
+.book:hover{border-color:var(--ink)}
+.book strong{font-family:var(--f-display);font-size:1.45rem;font-weight:800;line-height:1.1}
+.book span:not(.eyebrow){font-size:.92rem;color:var(--muted)}
+.book em{font-style:normal;font-weight:700;color:var(--blue);margin-top:4px}
 a.dl{display:inline-flex;align-items:center;gap:.4em;color:var(--ink);text-decoration:none}
 a.dl::before{content:"↓";font-weight:800}
 .clock-demo{display:grid;gap:10px}
@@ -689,14 +693,15 @@ function vHome(){
     '</div>'+(S.mode==='prac'?'<div class="chips" role="group" aria-label="Área de la práctica corta">'+chips+'</div>':'')+'</section>'+
     '<section class="step"><h2><b>3</b>Empiece</h2><div><button class="go" data-act="start">Empezar '+(S.mode==='sim'?'el simulacro':'la práctica')+' de la '+u.name+' →</button></div><p class="muted" style="margin:0;font-size:.9rem">El cronómetro arranca solo al abrir cada ítem. Tenga a mano lápiz y papel; no se usa calculadora.</p></section>'+
   '</main><aside>'+
-    '<div class="panel pdf"><h3>Versión para imprimir</h3><p>Las tres pruebas (UCR, UNA y TEC) en PDF, con hoja de respuestas y solucionario. Haga una prueba en papel y siga practicando aquí.</p>'+pdfLink('ghost dl','Descargar cuadernillo (PDF)')+'</div>'+
+    '<a class="panel book" href="'+PDF+'" download="cuadernillo-simulacro-admision.pdf" target="_blank" rel="noopener" aria-label="Descargar el cuadernillo de práctica en PDF">'+
+      '<span class="eyebrow">Versión para imprimir · PDF</span><strong>Cuadernillo de práctica</strong>'+
+      '<span>Las tres pruebas (UCR, UNA y TEC) con hoja de respuestas y solucionario.</span><em>↓ Tocar para descargar</em></a>'+
     '<div class="panel"><h3>Cómo funciona el cronómetro</h3><div class="clock-demo">'+
       '<div><span class="timer">1:48</span><span>Verde durante los primeros 2 min 26 s de cada ítem. Es el ritmo para terminar 45 ítems en 1 h 50 min.</span></div>'+
       '<div><span class="timer over">2:53</span><span>Rojo cuando se pasa de ese tiempo. Sigue contando hasta que usted pase al siguiente ítem.</span></div>'+
     '</div><p class="key">El tiempo de cada ítem queda registrado y aparece en los resultados.</p></div>'+
     '<div class="panel"><h3>Mis últimos intentos</h3><ul class="hist">'+hist+'</ul></div>'+
-  '</aside></div>'+
-  '<p class="foot">Banco: '+B.length+' ítems. Los ítems del TEC provienen del <i>Cuaderno de ejercicios para la prueba de aptitud académica del TEC</i>, 2.ª edición (Acuña-Chacón, Agüero-Calvo, Blanco-Leitón y Godínez-Rojas, 2023), con licencia CC BY-NC-SA 4.0; se usan sin fines comerciales y con explicaciones resumidas. Los ítems de la PAA UCR-UNA y los adicionales son de elaboración propia, con los mismos tipos de razonamiento de la práctica oficial. Material de estudio no oficial.</p>';
+  '</aside></div>';
 }
 
 function userbar(){
