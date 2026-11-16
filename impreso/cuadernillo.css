@@ -33,6 +33,19 @@ p{margin:0 0 8px}
 .plan th{width:22mm;font-family:var(--f-display)}
 .toc{margin:0;padding-left:1.2em}
 
+/* cómo resolver */
+.method{padding-left:1.3em;display:grid;gap:6px;margin:8px 0 6px}
+.howto h3{margin-top:14px}
+.exwrap{break-inside:avoid}
+.ex{border:1.5px solid var(--line);border-radius:8px;padding:8px 12px;break-inside:avoid}
+.ex .stem{font-size:10pt}
+.ex .opts{font-size:10pt}
+.think{margin-top:8px;padding-top:8px;border-top:1px dashed var(--line);font-size:9.6pt}
+.think b{font-family:var(--f-display)}
+.think ol{margin:4px 0;padding-left:1.3em;display:grid;gap:3px}
+.think .ans{margin:6px 0 0;padding:5px 9px;background:var(--soft);border-radius:6px;display:inline-block}
+.howto .note{margin-top:10px;break-inside:avoid}
+
 /* portada de cada prueba */
 .tcover{border-top:6px solid var(--ink);padding-top:12mm}
 .tcover h1{font-size:44pt}

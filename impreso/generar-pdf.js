@@ -108,6 +108,54 @@ function testSection(test) {
     ${answerSheet(test)}`;
 }
 
+
+/* Sección "Cómo resolver un ítem": método general y un ejemplo resuelto por área.
+   Usa ítems que no caen en ninguna de las tres pruebas. */
+function example(it, label, steps, extra) {
+  return `<div class="ex"><div class="exh"><span class="eyebrow">${label}</span></div>
+    <div class="stem">${it.q}</div>
+    <ol class="opts grid">${it.o.map((o, k) => `<li><span class="bub">${'ABCD'[k]}</span><span>${o}</span></li>`).join('')}</ol>
+    <div class="think"><b>Cómo se piensa</b><ol>${steps.map(t => `<li>${t}</li>`).join('')}</ol>
+    <p class="ans">Respuesta: <b>${'ABCD'[it.k]}</b>${extra ? ' · ' + extra : ''}</p></div></div>`;
+}
+function howto(B) {
+  const by = id => B.find(i => i.id === id);
+  return `<section class="page howto">
+  <div class="eyebrow">Antes de la primera prueba</div><h2>Cómo resolver un ítem</h2>
+  <p>Todos los ítems tienen la misma forma: un enunciado, una pregunta y cuatro opciones, de las cuales solo una es correcta. No se necesita saber datos de memoria: la respuesta siempre se obtiene razonando con lo que da el enunciado. Este método sirve para las tres áreas.</p>
+  <ol class="method">
+    <li><b>Lea todo el enunciado antes de ver las opciones.</b> Subraye los datos y las palabras clave (<i>no</i>, <i>solo</i>, <i>siempre</i>, <i>más alto que</i>, <i>se opone a</i>…).</li>
+    <li><b>Diga con sus palabras qué le preguntan.</b> Muchos errores vienen de responder otra pregunta: por ejemplo, dar un sinónimo cuando piden lo contrario.</li>
+    <li><b>Resuelva antes de mirar las opciones.</b> Haga un dibujo, una lista, un orden o una cuenta corta en el margen. Luego busque su resultado entre las opciones.</li>
+    <li><b>Descarte.</b> Si no llega a una respuesta, elimine las opciones que contradicen el enunciado. Entre dos que quedan, elija la que se apoya en lo que dice el texto, no en lo que usted supone.</li>
+    <li><b>Marque y siga.</b> Si pasa de 2 a 3 minutos, marque su mejor opción, anote el número y vuelva al final. Nunca deje un ítem en blanco: no se resta por error.</li>
+  </ol>
+  <div class="exwrap"><h3>Ejemplo resuelto · Lectura</h3>
+  ${example(by(47), 'Ejemplo', [
+    'La pregunta pide las palabras que <b>se oponen</b> a las subrayadas: hay que buscar contrarios, no sinónimos.',
+    '<i>Ameno</i> es entretenido, agradable. Su contrario es <i>tedioso</i> (aburrido).',
+    '<i>Escéptico</i> es quien duda, quien no cree fácilmente. Su contrario es <i>crédulo</i> (quien cree todo).',
+    'Se revisan las opciones: B y D dan palabras que no son contrarios; C dice <i>desconfiado</i>, que es casi lo mismo que escéptico, no lo opuesto. Solo A tiene los dos contrarios.'
+  ])}</div>
+  <div class="exwrap"><h3>Ejemplo resuelto · Lógica</h3>
+  ${example(by(114), 'Ejemplo', [
+    'Se piden cinco edificios ordenados del más alto al más bajo. Conviene escribir el orden en el margen e ir colocando cada dato.',
+    '<i>P es más alto que Q</i>: P, Q. &nbsp; <i>R es más bajo que Q</i>: P, Q, R.',
+    '<i>S es más alto que P</i>: S va primero: S, P, Q, R.',
+    '<i>T es más alto que R pero más bajo que Q</i>: T va entre Q y R: S, P, Q, T, R.',
+    'De cinco, el del medio es el tercero: Q.'
+  ], 'El dibujo en el margen evita tener todo en la cabeza.')}</div>
+  <div class="exwrap"><h3>Ejemplo resuelto · Matemática</h3>
+  ${example(by(150), 'Ejemplo', [
+    'Datos: 1 libro = 150 puntos; 400 puntos = 1 insignia; Pablo tiene 6 insignias y no le sobraron puntos. Pregunta: ¿cuántos libros?',
+    'Primero se pasa de insignias a puntos: 6 × 400 = 2400 puntos.',
+    'Luego de puntos a libros: 2400 ÷ 150 = 16 libros.',
+    'Comprobación: 16 × 150 = 2400 y 2400 ÷ 400 = 6 insignias justas. Coincide.'
+  ], 'Resolver primero y buscar después el resultado entre las opciones evita caer en los distractores.')}</div>
+  <p class="note">Al corregir, anote junto a cada ítem fallado en cuál paso del método se equivocó: ¿leyó mal la pregunta, se saltó un dato o eligió la opción que “sonaba” bien? Ese es el error que hay que trabajar.</p>
+</section>`;
+}
+
 (async () => {
   const browser = await chromium.launch();
   const page = await browser.newPage();
@@ -166,6 +214,7 @@ function testSection(test) {
   <h3>Contenido</h3>
   <ul class="toc"><li>Prueba 1 · UCR, con su hoja de respuestas</li><li>Prueba 2 · UNA, con su hoja de respuestas</li><li>Prueba 3 · TEC, con su hoja de respuestas</li><li>Solucionarios de las tres pruebas</li></ul>
 </section>
+${howto(B)}
 ${tests.map(testSection).join('')}
 <section class="page soldiv"><div class="eyebrow">Para corregir</div><h1>Solucionarios</h1><p class="lead">Use estas páginas solo después de terminar cada prueba. Si el cuadernillo es para varios estudiantes, el profesor o tutor puede separarlas.</p></section>
 ${tests.map(solutions).join('')}
