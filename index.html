@@ -69,6 +69,9 @@ h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;line-height:1.1
 .panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px 18px}
 .panel h3{font-size:1rem;font-weight:700;margin-bottom:10px}
 .panel + .panel{margin-top:14px}
+.panel.pdf p{margin:0 0 12px;font-size:.92rem;color:var(--muted)}
+a.dl{display:inline-flex;align-items:center;gap:.4em;color:var(--ink);text-decoration:none}
+a.dl::before{content:"↓";font-weight:800}
 .clock-demo{display:grid;gap:10px}
 .clock-demo div{display:flex;gap:12px;align-items:center;font-size:.93rem;line-height:1.35}
 .hist{list-style:none;margin:0;padding:0;display:grid;gap:6px;font-size:.92rem}
@@ -582,6 +585,8 @@ var UNI = {
 };
 var byId = {}; B.forEach(function (it) { byId[it.id] = it; });
 var app = document.getElementById('app');
+var PDF = 'impreso/cuadernillo-simulacro-admision.pdf';   // cuadernillo imprimible
+function pdfLink(cls,txt){return '<a class="'+cls+'" href="'+PDF+'" download="cuadernillo-simulacro-admision.pdf" target="_blank" rel="noopener">'+txt+'</a>';}
 var ADMIN = String(CONFIG.admin || '').trim().toLowerCase(), SYNC = String(CONFIG.sync || '').trim();
 var S = { view: 'login', user: null, uni: 'ucr', mode: 'sim', area: 'all', exam: null, filter: 'all', ask: false };
 var A = { rows: [], src: 'local', msg: '', sel: null };   // panel de administrador
@@ -684,6 +689,7 @@ function vHome(){
     '</div>'+(S.mode==='prac'?'<div class="chips" role="group" aria-label="Área de la práctica corta">'+chips+'</div>':'')+'</section>'+
     '<section class="step"><h2><b>3</b>Empiece</h2><div><button class="go" data-act="start">Empezar '+(S.mode==='sim'?'el simulacro':'la práctica')+' de la '+u.name+' →</button></div><p class="muted" style="margin:0;font-size:.9rem">El cronómetro arranca solo al abrir cada ítem. Tenga a mano lápiz y papel; no se usa calculadora.</p></section>'+
   '</main><aside>'+
+    '<div class="panel pdf"><h3>Versión para imprimir</h3><p>Las tres pruebas (UCR, UNA y TEC) en PDF, con hoja de respuestas y solucionario. Haga una prueba en papel y siga practicando aquí.</p>'+pdfLink('ghost dl','Descargar cuadernillo (PDF)')+'</div>'+
     '<div class="panel"><h3>Cómo funciona el cronómetro</h3><div class="clock-demo">'+
       '<div><span class="timer">1:48</span><span>Verde durante los primeros 2 min 26 s de cada ítem. Es el ritmo para terminar 45 ítems en 1 h 50 min.</span></div>'+
       '<div><span class="timer over">2:53</span><span>Rojo cuando se pasa de ese tiempo. Sigue contando hasta que usted pase al siguiente ítem.</span></div>'+
@@ -704,7 +710,8 @@ function vLogin(){
     '<label class="field" for="f-name">Nombre <small>(opcional, para identificar sus intentos)</small><input id="f-name" type="text" autocomplete="name"></label>'+
     (loginErr?'<p class="err">'+loginErr+'</p>':'')+
     '<button class="go" type="submit">Entrar →</button>'+
-    '<p class="muted" style="margin:0;font-size:.88rem">No se necesita contraseña. Sus intentos quedan registrados con este correo para dar seguimiento a su avance.</p></form>';
+    '<p class="muted" style="margin:0;font-size:.88rem">No se necesita contraseña. Sus intentos quedan registrados con este correo para dar seguimiento a su avance.</p></form>'+
+    '<p style="text-align:center;margin-top:18px">'+pdfLink('ghost dl','Descargar la versión para imprimir (PDF)')+'</p>';
 }
 function people(){
   var m={},out=[];
@@ -802,7 +809,7 @@ function vPerson(p){
 function vAdmin(){
   var ps=people(),sel=A.sel&&ps.filter(function(p){return p.email===A.sel;})[0];
   var head='<div class="userbar"><span>Administrador: <b>'+esc(S.user.email)+'</b></span><button class="link" data-act="home">Hacer un simulacro</button><button class="link" data-act="logout">Salir</button></div>'+
-    '<header class="mast"><div><div class="eyebrow">Simulacro de admisión</div><h1>Panel de registros</h1></div><div class="chips"><button class="ghost" data-act="adm-refresh">Actualizar</button><button class="ghost" data-act="csv"'+(A.rows.length?'':' disabled')+'>Descargar CSV</button></div></header>'+adminStatus();
+    '<header class="mast"><div><div class="eyebrow">Simulacro de admisión</div><h1>Panel de registros</h1></div><div class="chips"><button class="ghost" data-act="adm-refresh">Actualizar</button><button class="ghost" data-act="csv"'+(A.rows.length?'':' disabled')+'>Descargar CSV</button>'+pdfLink('ghost dl','Cuadernillo PDF')+'</div></header>'+adminStatus();
   if(sel)return head+vPerson(sel);
   var tot=A.rows.length,avg=tot?Math.round(A.rows.reduce(function(s,r){return s+pct(r);},0)/tot):0;
   var rows=ps.map(function(p){return '<button class="prow" data-act="person" data-v="'+esc(p.email)+'"><span><strong>'+esc(p.name||p.email)+'</strong>'+(p.name?'<small>'+esc(p.email)+'</small>':'')+
