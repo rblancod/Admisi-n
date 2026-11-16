@@ -643,19 +643,36 @@ function csv(){
   try{var a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\ufeff'+out.join('\r\n')],{type:'text/csv'}));a.download='registros-simulacro.csv';document.body.appendChild(a);a.click();a.remove();}catch(e){}
 }
 
+/* Cuántas veces ha visto esta persona cada ítem y en qué intento lo vio por última vez. */
+function seen(){
+  var em=S.user?S.user.email:'',cnt={},last={};
+  recs().filter(function(r){return r.email===em;}).sort(function(x,y){return x.d<y.d?-1:1;}).forEach(function(r,k){
+    (r.items||[]).forEach(function(t){cnt[t[0]]=(cnt[t[0]]||0)+1;last[t[0]]=k;});});
+  return {cnt:cnt,last:last};
+}
+/* Toma n ítems del grupo: primero los nunca vistos, luego los vistos hace más tiempo; al azar entre iguales. */
+function pick(list,n,sn){
+  return shuffle(list).sort(function(x,y){
+    var a=sn.cnt[x.id]||0,b=sn.cnt[y.id]||0;if(a!==b)return a-b;
+    return (sn.last[x.id]||0)-(sn.last[y.id]||0);
+  }).slice(0,n).map(function(it){return it.id;});
+}
 function build(){
-  var ids=[];
+  var ids=[],sn=seen();
   if(S.mode==='sim'){
     var mix=UNI[S.uni].mix;
-    ['L','G','M'].forEach(function(a){ids=ids.concat(shuffle(pool(S.uni,a)).slice(0,mix[a]).map(function(it){return it.id;}));});
+    ['L','G','M'].forEach(function(a){ids=ids.concat(pick(pool(S.uni,a),mix[a],sn));});
   }else{
     var areas=S.area==='all'?['L','G','M']:[S.area], per=S.area==='all'?5:15;
-    areas.forEach(function(a){ids=ids.concat(shuffle(pool(S.uni,a)).slice(0,per).map(function(it){return it.id;}));});
+    areas.forEach(function(a){ids=ids.concat(pick(pool(S.uni,a),per,sn));});
   }
   ids=shuffle(ids);
-  S.exam={uni:S.uni,mode:S.mode,ids:ids,ans:ids.map(function(){return -1;}),times:ids.map(function(){return 0;}),i:0,done:false};
+  /* El orden de las opciones también cambia en cada intento: perm[i][posición] = opción original. */
+  S.exam={uni:S.uni,mode:S.mode,ids:ids,ans:ids.map(function(){return -1;}),times:ids.map(function(){return 0;}),perm:ids.map(function(){return shuffle([0,1,2,3]);}),i:0,done:false};
   S.view='exam';S.ask=false;enterAt=Date.now();
 }
+function perm(i){var x=S.exam;return (x.perm&&x.perm[i])||[0,1,2,3];}
+function letter(i,o){return o<0?'':'ABCD'[perm(i).indexOf(o)];}   // letra con la que se mostró la opción o en el ítem i
 function frozen(i){var x=S.exam;return x.mode==='prac'&&x.ans[i]>=0;}
 function commit(){var x=S.exam;if(!x||x.done)return;if(!frozen(x.i))x.times[x.i]+=Date.now()-enterAt;enterAt=Date.now();}
 function curTime(){var x=S.exam;return x.times[x.i]+(frozen(x.i)?0:Date.now()-enterAt);}
@@ -798,7 +815,7 @@ function vPerson(p){
     return '<div class="area"><b>'+AREA[a]+'</b><div class="track"><i style="width:'+(100*v[0]/v[1])+'%"></i></div><span class="num">'+v[0]+' de '+v[1]+' · '+fmt(v[2]/v[1])+' por ítem</span></div>';}).join('');
   var tries=p.list.slice().reverse().map(function(r){
     var miss=(r.items||[]).filter(function(t){var it=byId[t[0]];return it&&t[1]!==it.k;}).map(function(t){var it=byId[t[0]],tx=plain(it.q);
-      return '<li><b>'+AREA[it.a]+'.</b> '+esc(tx.length>130?tx.slice(0,130)+'…':tx)+'<br><span class="muted">'+(t[1]<0?'Sin contestar':'Marcó '+'ABCD'[t[1]])+' · era '+'ABCD'[it.k]+' · '+fmt(t[2]*1000)+(t[2]*1000>LIMIT?' (en rojo)':'')+'</span></li>';}).join('');
+      return '<li><b>'+AREA[it.a]+'.</b> '+esc(tx.length>130?tx.slice(0,130)+'…':tx)+'<br><span class="muted">'+(t[1]<0?'Sin contestar':'Marcó “'+esc(plain(it.o[t[1]]))+'”')+' · correcta: “'+esc(plain(it.o[it.k]))+'” · '+fmt(t[2]*1000)+(t[2]*1000>LIMIT?' (en rojo)':'')+'</span></li>';}).join('');
     return '<details class="rev"><summary><b>'+pct(r)+'%</b><span class="ar muted">'+UNI[r.uni].name+'</span><span>'+when(r.d)+' · '+(r.mode==='sim'?'Simulacro':'Práctica')+' · '+r.ok+' de '+r.n+' · '+r.late+' en rojo</span><span class="timer sm off">'+fmtLong(r.ms)+'</span></summary>'+
       '<div class="body"><p class="eyebrow" style="margin:12px 0 8px">Ítems para repasar</p>'+(miss?'<ul class="miss">'+miss+'</ul>':'<p class="muted" style="margin:0">Acertó todos los ítems de este intento.</p>')+'</div></details>';
   }).join('');
@@ -828,7 +845,7 @@ function vAdmin(){
 function sheet(){
   var x=S.exam,done=x.ans.filter(function(a){return a>=0;}).length;
   var rows=x.ids.map(function(id,i){
-    var b='';for(var o=0;o<4;o++)b+='<i'+(x.ans[i]===o?' class="on"':'')+'></i>';
+    var b='',pm=perm(i);for(var o=0;o<4;o++)b+='<i'+(x.ans[i]===pm[o]?' class="on"':'')+'></i>';
     return '<button class="row'+(i===x.i?' cur':'')+(x.times[i]>LIMIT?' late':'')+'" data-act="jump" data-v="'+i+'" aria-label="Ir al ítem '+(i+1)+(x.ans[i]>=0?', contestado':', sin contestar')+'"><b>'+(i+1)+'</b>'+b+'</button>';
   }).join('');
   var open=window.matchMedia('(min-width:901px)').matches?' open':'';
@@ -840,12 +857,12 @@ function sheet(){
 
 function vExam(){
   var x=S.exam,it=byId[x.ids[x.i]],n=x.ids.length,sel=x.ans[x.i],show=x.mode==='prac'&&sel>=0;
-  var opts=it.o.map(function(t,o){
-    var c='opt';
+  var opts=perm(x.i).map(function(o,d){
+    var t=it.o[o],c='opt';
     if(show){if(o===it.k)c+=' right';else if(o===sel)c+=' wrong';}else if(o===sel)c+=' sel';
-    return '<button class="'+c+'" data-act="ans" data-v="'+o+'"'+(show?' disabled':'')+' aria-pressed="'+(o===sel)+'"><span class="bub">'+'ABCD'[o]+'</span><span>'+t+'</span></button>';
+    return '<button class="'+c+'" data-act="ans" data-v="'+o+'"'+(show?' disabled':'')+' aria-pressed="'+(o===sel)+'"><span class="bub">'+'ABCD'[d]+'</span><span>'+t+'</span></button>';
   }).join('');
-  var why=show?'<div class="why'+(sel===it.k?'':' bad')+'"><b>'+(sel===it.k?'Correcto. ':'La respuesta correcta es la '+'ABCD'[it.k]+'. ')+'</b>'+it.e+'</div>':'';
+  var why=show?'<div class="why'+(sel===it.k?'':' bad')+'"><b>'+(sel===it.k?'Correcto. ':'La respuesta correcta es la '+letter(x.i,it.k)+'. ')+'</b>'+it.e+'</div>':'';
   return '<div class="bar"><div class="where"><div class="eyebrow">'+UNI[x.uni].name+' · '+(x.mode==='sim'?'Simulacro':'Práctica corta')+' · '+AREA[it.a]+'</div><strong>Ítem '+(x.i+1)+' <span class="muted" style="font-weight:500">de '+n+'</span></strong></div>'+
     '<span class="tot" id="tot"></span><span class="timer" id="clk" role="timer" aria-label="Tiempo en este ítem">0:00</span>'+
     '<div class="fill" id="fill"><i></i></div></div>'+
@@ -870,10 +887,10 @@ function vResult(){
   var list=x.ids.map(function(id,i){
     var it=byId[id],a=x.ans[i],ok=a===it.k,late=x.times[i]>LIMIT;
     if(S.filter==='bad'&&ok)return '';if(S.filter==='late'&&!late)return '';
-    var opts=it.o.map(function(t,o){var c='opt';if(o===it.k)c+=' right';else if(o===a)c+=' wrong';
-      return '<div class="'+c+'"><span class="bub">'+'ABCD'[o]+'</span><span>'+t+'</span></div>';}).join('');
+    var opts=perm(i).map(function(o,d){var t=it.o[o],c='opt';if(o===it.k)c+=' right';else if(o===a)c+=' wrong';
+      return '<div class="'+c+'"><span class="bub">'+'ABCD'[d]+'</span><span>'+t+'</span></div>';}).join('');
     return '<details class="rev"><summary><b>'+(i+1)+'</b><span class="ar muted">'+AREA[it.a]+'</span><span>'+
-      (a<0?'<span class="tag nil">Sin contestar</span>':ok?'<span class="tag ok">Correcto · '+'ABCD'[a]+'</span>':'<span class="tag no">Marcó '+'ABCD'[a]+' · era '+'ABCD'[it.k]+'</span>')+
+      (a<0?'<span class="tag nil">Sin contestar</span>':ok?'<span class="tag ok">Correcto · '+letter(i,a)+'</span>':'<span class="tag no">Marcó '+letter(i,a)+' · era '+letter(i,it.k)+'</span>')+
       '</span><span class="timer sm'+(late?' over':'')+'">'+fmt(x.times[i])+'</span></summary>'+
       '<div class="body"><div class="stem">'+it.q+'</div><div class="opts">'+opts+'</div><div class="why'+(ok?'':' bad')+'"><b>Explicación. </b>'+it.e+'</div></div></details>';
   }).join('');
