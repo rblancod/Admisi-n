@@ -1,0 +1,101 @@
+/* Cuadernillo imprimible. Pensado para carta, en blanco y negro o color. */
+:root{--ink:#171b26;--muted:#5a6275;--line:#c9ceda;--soft:#f1f3f7;--blue:#2242b8;
+  --f-display:"Archivo","Arial Narrow",Arial,sans-serif;--f-body:"Atkinson Hyperlegible",Verdana,sans-serif}
+*{box-sizing:border-box}
+html,body{margin:0;background:#fff;color:var(--ink)}
+body{font-family:var(--f-body);font-size:10.6pt;line-height:1.45;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+h1,h2,h3{font-family:var(--f-display);margin:0;line-height:1.1;text-wrap:balance}
+h1{font-size:34pt;font-weight:800;font-stretch:85%}
+h2{font-size:20pt;font-weight:800;font-stretch:90%;margin-bottom:10px}
+h3{font-size:12.5pt;font-weight:700;margin:18px 0 8px}
+p{margin:0 0 8px}
+.eyebrow{font-family:var(--f-display);font-size:8.5pt;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.lead{font-size:13pt;color:var(--muted);max-width:52ch;margin-top:10px}
+.small{font-size:8.5pt;color:var(--muted)}
+.page{break-after:page}
+.cover u,.fields u{display:inline-block;border-bottom:1px solid var(--ink);text-decoration:none;min-width:12em;vertical-align:bottom}
+.stem u{text-underline-offset:2px}
+
+/* portada */
+.cover{display:flex;flex-direction:column;min-height:228mm;border-top:6px solid var(--ink);padding-top:22mm}
+.cover h1{font-size:50pt}
+.unis{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:28mm 0 0}
+.unis div{border:2px solid var(--ink);border-radius:10px;padding:14px 16px}
+.unis b{display:block;font-family:var(--f-display);font-size:30pt;font-weight:800;font-stretch:80%}
+.unis span{color:var(--muted);font-size:9.5pt}
+.cover .name{margin-top:auto;font-weight:700;font-size:11pt;padding-bottom:6px}
+.cover .name u{min-width:105mm}
+
+/* guía */
+.steps{padding-left:1.3em;display:grid;gap:8px;margin:10px 0}
+.plan,.mix{border-collapse:collapse;width:100%;font-size:10pt}
+.plan th,.plan td,.mix th,.mix td{border-bottom:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
+.plan th{width:22mm;font-family:var(--f-display)}
+.toc{margin:0;padding-left:1.2em}
+
+/* portada de cada prueba */
+.tcover{border-top:6px solid var(--ink);padding-top:12mm}
+.tcover h1{font-size:44pt}
+.facts{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:18px 0}
+.facts div{border-left:3px solid var(--ink);padding-left:10px}
+.facts b{display:block;font-family:var(--f-display);font-size:17pt;font-weight:800}
+.facts span{font-size:9pt;color:var(--muted)}
+.mix{max-width:90mm}.mix th{font-family:var(--f-display);width:40mm}
+.rules{padding-left:1.2em;display:grid;gap:5px}
+.note{margin-top:14px;padding:10px 12px;background:var(--soft);border-left:4px solid var(--blue);border-radius:0 6px 6px 0;font-size:10pt}
+
+/* ítems */
+.parth{font-size:13pt;border-bottom:2px solid var(--ink);padding-bottom:4px;margin:0 0 10px;display:flex;justify-content:space-between;align-items:baseline;break-after:avoid}
+.parth span{font-family:var(--f-body);font-weight:400;font-size:9pt;color:var(--muted)}
+.part+.part .parth{margin-top:16px}
+.item{display:grid;grid-template-columns:9mm minmax(0,1fr);gap:4px;padding:8px 0 10px;border-bottom:1px dashed var(--line);break-inside:avoid}
+.num{font-family:var(--f-display);font-weight:800;font-size:13pt;line-height:1.2}
+.stem blockquote{margin:6px 0;padding:7px 11px;background:var(--soft);border-left:3px solid var(--ink);border-radius:0 6px 6px 0}
+.stem cite{display:block;text-align:right;font-style:normal;font-size:8.5pt;color:var(--muted);margin-top:4px}
+.stem .duo{display:grid;gap:8px;grid-template-columns:1fr 1fr;margin:6px 0}
+.stem .duo blockquote{margin:0}
+.gap{display:inline-block;width:4.2em;border-bottom:1.5px solid var(--ink);margin:0 .2em}
+.mth{font-family:var(--f-display);font-size:11.5pt;margin:6px 0;padding-left:8px}
+.fr{display:inline-flex;flex-direction:column;text-align:center;vertical-align:middle;font-family:var(--f-display);line-height:1.2}
+.fr i{font-style:normal;padding:0 .3em}.fr i:first-child{border-bottom:1.2px solid currentColor}
+.tri{font-family:var(--f-display);text-align:center;font-size:11pt;line-height:1.6;margin:6px 0}
+.tb{border-collapse:collapse;margin:6px 0;font-size:9.8pt}
+.tb th,.tb td{border:1px solid var(--line);padding:3px 10px;text-align:left}
+.tb th{background:var(--soft)}
+.opts{list-style:none;margin:7px 0 0;padding:0;display:grid;gap:4px}
+.opts.grid{grid-template-columns:1fr 1fr;column-gap:14px}
+.opts li{display:flex;gap:8px;align-items:center}
+.bub{flex:none;display:grid;place-items:center;width:19px;height:19px;border:1.4px solid var(--ink);border-radius:50%;font-family:var(--f-display);font-weight:700;font-size:8.5pt}
+.end{margin-top:14px;font-style:italic;color:var(--muted);text-align:center}
+
+/* hoja de respuestas */
+.sheet{break-before:page}
+.fields{display:grid;grid-template-columns:1fr 1fr;gap:10px 18px;margin:8px 0 10px;font-size:10pt}
+.fields u{min-width:0;width:100%;flex:1}.fields span{display:flex;gap:6px}
+.hint{font-size:9pt;color:var(--muted)}
+.bubbles{display:grid;grid-template-columns:repeat(3,1fr);gap:0 10px;border:2px solid var(--ink);border-radius:8px;padding:8px 10px;margin:6px 0 4px}
+.row{display:flex;align-items:center;gap:5px;padding:3.2px 0;border-bottom:1px solid #e3e6ee}
+.row:last-child{border:0}
+.row b{width:7mm;text-align:right;font-family:var(--f-display);font-size:10pt;margin-right:3px}
+.row i{display:grid;place-items:center;width:17px;height:17px;border:1.3px solid var(--ink);border-radius:50%;font-style:normal;font-size:7.5pt;font-family:var(--f-display);font-weight:700;color:var(--muted)}
+.row .ar{margin-left:auto;font-size:7.5pt;color:var(--muted)}
+.sheet h3{margin-top:10px}
+.cut{border-collapse:collapse;width:100%;font-size:9.2pt;margin-bottom:6px}
+.cut th,.cut td{border:1px solid var(--line);padding:4px 7px;text-align:left}
+.cut thead th{background:var(--soft);font-family:var(--f-display)}
+.cut .c{text-align:center;white-space:nowrap}
+
+/* solucionarios */
+.soldiv{display:flex;flex-direction:column;justify-content:center;min-height:200mm;border-top:6px solid var(--ink)}
+.sol{break-after:page}
+.keys{display:grid;grid-template-columns:repeat(9,1fr);gap:3px;margin:6px 0 12px;font-size:9pt}
+.keys span{border:1px solid var(--line);border-radius:4px;padding:2px 5px;display:flex;justify-content:space-between}
+.keys b{font-family:var(--f-display);color:var(--muted);font-weight:600}
+.soltb{border-collapse:collapse;width:100%;font-size:8.6pt;line-height:1.35}
+.soltb th,.soltb td{border-bottom:1px solid var(--line);padding:3px 6px;text-align:left;vertical-align:top}
+.soltb thead th{border-bottom:2px solid var(--ink);font-family:var(--f-display)}
+.soltb thead{display:table-header-group}
+.soltb tr{break-inside:avoid}
+.soltb .n,.soltb .k{font-family:var(--f-display);font-weight:800;text-align:center;width:9mm}
+.soltb .a{width:21mm;color:var(--muted)}
+.credits{font-size:9pt;color:var(--muted);border-top:2px solid var(--ink);padding-top:8px}
